@@ -1,8 +1,9 @@
 package com.example.expensemate;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
@@ -17,12 +18,21 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.expensemate.adapter.RecordsAdapter;
 import com.example.expensemate.controller.RecordsViewModel;
+import com.example.expensemate.model.Record;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerViewRecords;
     private RecordsAdapter recordsAdapter;
     private RecordsViewModel recordsViewModel;
+    private TextView textViewMonth, textViewBalance, textViewIncome, textViewExpense;
+    private int currentYear, currentMonth;
     private ActivityResultLauncher<Intent> recordLauncher;
 
     @Override
@@ -38,22 +48,19 @@ public class MainActivity extends AppCompatActivity {
 
         recordsViewModel = new ViewModelProvider(this).get(RecordsViewModel.class);
         initViews();
+        initCurrentDate();
+        loadDate();
+        initMonth();
 
         recordLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == RESULT_OK) {
                         recordsViewModel.loadRecords();
+                        updateTotal();
                     }
                 }
         );
-
-        recordsViewModel.getRecordList().observe(this, records -> {
-            recordsAdapter.setRecordList(records);
-            recordsAdapter.notifyDataSetChanged();
-        });
-
-        recordsViewModel.loadRecords();
     }
 
     private void initViews() {
@@ -62,6 +69,11 @@ public class MainActivity extends AppCompatActivity {
 
         recordsAdapter = new RecordsAdapter(recordsViewModel.getRecordList().getValue());
         recyclerViewRecords.setAdapter(recordsAdapter);
+
+        textViewMonth = findViewById(R.id.textViewMonth);
+        textViewBalance = findViewById(R.id.textViewBalance);
+        textViewIncome = findViewById(R.id.textViewIncome);
+        textViewExpense = findViewById(R.id.textViewExpense);
 
         // 新增紀錄跳轉畫面
         FloatingActionButton btnAddRecord = findViewById(R.id.btnAddRecord);
@@ -73,11 +85,80 @@ public class MainActivity extends AppCompatActivity {
         // 點擊紀錄跳轉畫面
         recordsAdapter.setOnItemClickListener((record, recordId) -> {
             Intent intent = new Intent(MainActivity.this, EditRecordActivity.class);
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
             intent.putExtra("recordId", recordId);
             intent.putExtra("recordName", record.getName());
             intent.putExtra("recordPrice", record.getPrice());
             intent.putExtra("recordType", record.getType());
+            intent.putExtra("recordDate", dateFormat.format(record.getDate()));
             recordLauncher.launch(intent);
         });
+    }
+
+    private void initCurrentDate() {
+        Calendar calendar = Calendar.getInstance();
+        currentYear = calendar.get(Calendar.YEAR);
+        currentMonth = calendar.get(Calendar.MONTH);
+    }
+
+    private void loadDate() {
+        recordsViewModel.getRecordList().observe(this, records -> {
+            recordsAdapter.setItemList(records);
+            recordsAdapter.notifyDataSetChanged();
+        });
+        recordsViewModel.loadRecords();
+    }
+
+    private void initMonth() {
+        updateMonthDisplay();
+        updateTotal();
+
+        findViewById(R.id.btnPreviousMonth).setOnClickListener(v -> {
+            showPreviousMonth();
+        });
+
+        findViewById(R.id.btnNextMonth).setOnClickListener(v -> {
+            showNextMonth();
+        });
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void updateMonthDisplay() {
+        SimpleDateFormat monthFormat = new SimpleDateFormat("yyyy MM月", Locale.getDefault());
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.YEAR, currentYear);
+        calendar.set(Calendar.MONTH, currentMonth);
+        String monthString = monthFormat.format(calendar.getTime());
+        textViewMonth.setText(monthString);
+    }
+
+    private void updateTotal() {
+        List<Record> currentMonthRecords = recordsViewModel.getRecordsForMonth(currentYear, currentMonth);
+        Map<String, Float> totals = recordsViewModel.calculateTotals(currentMonthRecords);
+        textViewIncome.setText(String.valueOf(totals.get("Income")));
+        textViewExpense.setText(String.valueOf(totals.get("Expense")));
+        textViewBalance.setText(String.valueOf(totals.get("Balance")));
+    }
+
+    private void showPreviousMonth() {
+        currentMonth--;
+        if (currentMonth < 0) {
+            currentMonth = 11;
+            currentYear--;
+        }
+        updateMonthDisplay();
+        updateTotal();
+        loadDate();
+    }
+
+    private void showNextMonth() {
+        currentMonth++;
+        if (currentMonth > 11) {
+            currentMonth = 0;
+            currentYear++;
+        }
+        updateMonthDisplay();
+        updateTotal();
+        loadDate();
     }
 }

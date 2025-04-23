@@ -4,6 +4,7 @@ import com.example.expensemate.manager.RecordManager;
 import com.example.expensemate.model.Record;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -53,6 +54,10 @@ public class User {
 
     public void enterPrice(float price) {
         this.recordManager.enterPrice(price);
+    }
+
+    public void selectDate(Date date) {
+        this.recordManager.selectDate(date);
     }
 
     public void saveRecord() {

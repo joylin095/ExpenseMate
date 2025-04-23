@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".EditRecordActivity">
+    android:padding="16dp">
 
     <TextView
         android:id="@+id/textViewTitle"
@@ -61,18 +59,63 @@
             android:id="@+id/radioButtonExpense"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
             android:text="支出" />
     </RadioGroup>
 
-    <Button
-        android:id="@+id/buttonEdit"
+    <EditText
+        android:id="@+id/editTextDate"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:minHeight="50dp"
-        android:text="儲存"
+        android:hint="日期 (YYYY-MM-DD)"
+        android:inputType="date"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/radioGroupType" />
+
+    <!--  標籤 (EditText + Button + ChipGroup)  -->
+    <EditText
+        android:id="@+id/editTextTagsInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:minHeight="50dp"
+        android:hint="新增標籤"
+        app:layout_constraintEnd_toStartOf="@id/buttonAddTag"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/editTextDate" />
+
+    <Button
+        android:id="@+id/buttonAddTag"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="新增"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/editTextTagsInput"
+        app:layout_constraintBottom_toBottomOf="@id/editTextTagsInput"/>
+
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/chipGroupTags"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/editTextTagsInput">
+        <!--  預設或動態新增的標籤 Chip  -->
+    </com.google.android.material.chip.ChipGroup>
+
+    <Button
+        android:id="@+id/btnEdit"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="儲存"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/chipGroupTags" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

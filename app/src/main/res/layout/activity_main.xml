@@ -20,7 +20,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <Button
-            android:id="@+id/buttonPreviousMonth"
+            android:id="@+id/btnPreviousMonth"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="&lt;" />
@@ -36,7 +36,7 @@
             android:textSize="18sp" />
 
         <Button
-            android:id="@+id/buttonNextMonth"
+            android:id="@+id/btnNextMonth"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="&gt;" />

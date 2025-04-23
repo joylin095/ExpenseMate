@@ -1,6 +1,6 @@
 package com.example.expensemate.adapter;
 
-import android.util.Log;
+import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,22 +10,27 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.expensemate.R;
+import com.example.expensemate.model.DateRecord;
 import com.example.expensemate.model.Record;
 
-import java.util.ArrayList;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
-import java.util.Map;
+import java.util.Date;
+import java.util.Locale;
 
 public class RecordsAdapter extends RecyclerView.Adapter<RecordsAdapter.RecordViewHolder> {
-    private List<Map.Entry<String, Record>> recordList;
+    private static final int VIEW_TYPE_DATE = 0;
+    private static final int VIEW_TYPE_RECORD = 1;
+    private List<Object> itemList;
     private OnItemClickListener onItemClickListener;
 
-    public RecordsAdapter(Map<String, Record> recordList) {
-        this.recordList = new ArrayList<>(recordList.entrySet());
+    public RecordsAdapter(List<Object> itemList) {
+        this.itemList = itemList;
     }
 
-    public void setRecordList(Map<String, Record> recordList) {
-        this.recordList = new ArrayList<>(recordList.entrySet());
+    public void setItemList(List<Object> itemList) {
+        this.itemList = itemList;
         notifyDataSetChanged();
     }
 
@@ -40,28 +45,83 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecordsAdapter.RecordVi
     @NonNull
     @Override
     public RecordViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_record, parent, false);
-        return new RecordViewHolder(view);
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+        if (viewType == VIEW_TYPE_DATE) {
+            View view = inflater.inflate(R.layout.item_date, parent, false);
+            return new DateViewHolder(view);
+        } else {
+            View view = inflater.inflate(R.layout.item_record, parent, false);
+            return new RecordViewHolder(view);
+        }
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecordViewHolder holder, int position) {
-        Record record = recordList.get(position).getValue();
-        holder.bind(record);
+        Object item = itemList.get(position);
+        if (holder instanceof DateViewHolder) {
+            ((DateViewHolder) holder).bind((DateRecord) item);
+        } else if (holder instanceof RecordViewHolder) {
+            ((RecordViewHolder) holder).bind((Record) item);
+        }
+    }
 
-        holder.itemView.setOnClickListener(v -> {
-            if (onItemClickListener != null) {
-                onItemClickListener.onItemClick(record, record.getId());
-            }
-        });
+    @Override
+    public int getItemViewType(int position) {
+        if (itemList.get(position) instanceof DateRecord) {
+            return VIEW_TYPE_DATE;
+        } else {
+            return VIEW_TYPE_RECORD;
+        }
     }
 
     @Override
     public int getItemCount() {
-        return recordList.size();
+        return itemList.size();
     }
 
-    public static class RecordViewHolder extends RecyclerView.ViewHolder {
+    public class DateViewHolder extends RecordViewHolder {
+        TextView textViewDate;
+
+        public DateViewHolder(@NonNull View itemView) {
+            super(itemView);
+            textViewDate = itemView.findViewById(R.id.textViewDate);
+        }
+
+        @SuppressLint("SetTextI18n")
+        public void bind(DateRecord dateRecord) {
+            Date date = dateRecord.date;
+            SimpleDateFormat dayFormat = new SimpleDateFormat("dd", Locale.getDefault());
+            String dayString = dayFormat.format(date);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+            int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+
+            textViewDate.setText(dayString + " " + getDayOfWeek(dayOfWeek));
+        }
+
+        private String getDayOfWeek(int dayOfWeek) {
+            switch (dayOfWeek) {
+                case Calendar.SUNDAY:
+                    return "星期日";
+                case Calendar.MONDAY:
+                    return "星期一";
+                case Calendar.TUESDAY:
+                    return "星期二";
+                case Calendar.WEDNESDAY:
+                    return "星期三";
+                case Calendar.THURSDAY:
+                    return "星期四";
+                case Calendar.FRIDAY:
+                    return "星期五";
+                case Calendar.SATURDAY:
+                    return "星期六";
+                default:
+                    return "";
+            }
+        }
+    }
+
+    public class RecordViewHolder extends RecyclerView.ViewHolder {
         TextView textViewName, textViewType, textViewPrice;
 
         public RecordViewHolder(@NonNull View itemView) {
@@ -69,6 +129,12 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecordsAdapter.RecordVi
             textViewName = itemView.findViewById(R.id.textViewName);
             textViewType = itemView.findViewById(R.id.textViewType);
             textViewPrice = itemView.findViewById(R.id.textViewPrice);
+            itemView.setOnClickListener(v -> {
+                int position = getAdapterPosition();
+                if (position != RecyclerView.NO_POSITION && onItemClickListener != null) {
+                    onItemClickListener.onItemClick((Record) itemList.get(position), ((Record) itemList.get(position)).getId());
+                }
+            });
         }
 
         public void bind(Record record) {

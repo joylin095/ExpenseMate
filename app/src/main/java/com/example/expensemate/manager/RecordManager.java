@@ -3,6 +3,7 @@ package com.example.expensemate.manager;
 import com.example.expensemate.model.Record;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,10 @@ public class RecordManager {
 
     public void enterPrice(float price){
         this.record.setPrice(price);
+    }
+
+    public void selectDate(Date date){
+        this.record.setDate(date);
     }
 
     public void saveRecord(){
