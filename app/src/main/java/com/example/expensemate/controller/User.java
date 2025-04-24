@@ -10,23 +10,10 @@ import java.util.Map;
 
 public class User {
     private RecordManager recordManager;
-    /*mock data to test the app
-    private List<Record> recordList = new ArrayList<>();*/
     private static User userInstance;
 
     public User() {
         this.recordManager = new RecordManager();
-        /*mock data to test the app
-        Record record1 = new Record();
-        record1.setName("Groceries");
-        record1.setType("Expense");
-        record1.setPrice(50.0f);
-        Record record2 = new Record();
-        record2.setName("Salary");
-        record2.setType("Income");
-        record2.setPrice(2000.0f);
-        recordList.add(record1);
-        recordList.add(record2);*/
     }
 
     public static User getInstance() {
@@ -62,8 +49,6 @@ public class User {
 
     public void saveRecord() {
         this.recordManager.saveRecord();
-        /*mock data to test the app
-        recordList = this.recordManager.getRecordList();*/
     }
 
     public void editRecord() {
@@ -71,8 +56,6 @@ public class User {
     }
 
     public Map<String, Record> getRecordList() {
-        /*mock data to test the app
-        return recordList;*/
         return this.recordManager.getRecordList();
     }
 }

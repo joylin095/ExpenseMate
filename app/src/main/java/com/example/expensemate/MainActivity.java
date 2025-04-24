@@ -18,12 +18,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.expensemate.adapter.RecordsAdapter;
 import com.example.expensemate.controller.RecordsViewModel;
-import com.example.expensemate.model.Record;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -47,17 +45,21 @@ public class MainActivity extends AppCompatActivity {
         });
 
         recordsViewModel = new ViewModelProvider(this).get(RecordsViewModel.class);
+        recordsViewModel.getRecordList().observe(this, records -> {
+            recordsAdapter.setItemList(records);
+            recordsAdapter.notifyDataSetChanged();
+        });
+
         initViews();
         initCurrentDate();
-        loadDate();
         initMonth();
+        updateViews();
 
         recordLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == RESULT_OK) {
-                        recordsViewModel.loadRecords();
-                        updateTotal();
+                        updateViews();
                     }
                 }
         );
@@ -101,18 +103,7 @@ public class MainActivity extends AppCompatActivity {
         currentMonth = calendar.get(Calendar.MONTH);
     }
 
-    private void loadDate() {
-        recordsViewModel.getRecordList().observe(this, records -> {
-            recordsAdapter.setItemList(records);
-            recordsAdapter.notifyDataSetChanged();
-        });
-        recordsViewModel.loadRecords();
-    }
-
     private void initMonth() {
-        updateMonthDisplay();
-        updateTotal();
-
         findViewById(R.id.btnPreviousMonth).setOnClickListener(v -> {
             showPreviousMonth();
         });
@@ -120,6 +111,16 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.btnNextMonth).setOnClickListener(v -> {
             showNextMonth();
         });
+    }
+
+    private void updateViews() {
+        loadRecordsForCurrentMonth();
+        updateTotal();
+        updateMonthDisplay();
+    }
+
+    private void loadRecordsForCurrentMonth() {
+        recordsViewModel.loadRecords(currentYear, currentMonth);
     }
 
     @SuppressLint("SetTextI18n")
@@ -133,8 +134,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateTotal() {
-        List<Record> currentMonthRecords = recordsViewModel.getRecordsForMonth(currentYear, currentMonth);
-        Map<String, Float> totals = recordsViewModel.calculateTotals(currentMonthRecords);
+        Map<String, Float> totals = recordsViewModel.calculateTotals();
         textViewIncome.setText(String.valueOf(totals.get("Income")));
         textViewExpense.setText(String.valueOf(totals.get("Expense")));
         textViewBalance.setText(String.valueOf(totals.get("Balance")));
@@ -146,9 +146,7 @@ public class MainActivity extends AppCompatActivity {
             currentMonth = 11;
             currentYear--;
         }
-        updateMonthDisplay();
-        updateTotal();
-        loadDate();
+        updateViews();
     }
 
     private void showNextMonth() {
@@ -157,8 +155,6 @@ public class MainActivity extends AppCompatActivity {
             currentMonth = 0;
             currentYear++;
         }
-        updateMonthDisplay();
-        updateTotal();
-        loadDate();
+        updateViews();
     }
 }

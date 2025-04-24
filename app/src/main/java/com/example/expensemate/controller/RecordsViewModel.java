@@ -17,15 +17,15 @@ import java.util.Map;
 
 public class RecordsViewModel extends ViewModel {
     private final MutableLiveData<List<Object>> recordList = new MutableLiveData<>();
+    private List<Record> records = new ArrayList<>();
     private User user = User.getInstance();
 
     public LiveData<List<Object>> getRecordList() {
         return recordList;
     }
 
-    public void loadRecords() {
-        Map<String, Record> recordMap = user.getRecordList();
-        List<Record> records = new ArrayList<>(recordMap.values());
+    public void loadRecords(int year, int month) {
+        records = getRecordsForMonth(year, month);
         List <Object> groupedRecords = groupRecordsByDate(records);
         recordList.setValue(groupedRecords);
     }
@@ -46,7 +46,6 @@ public class RecordsViewModel extends ViewModel {
         }
 
         List<String> sortedDates = new ArrayList<>(dateGroupedRecords.keySet());
-        // Sort the dates 日期大到小
         sortedDates.sort((date1, date2) -> {
             try {
                 return dateFormat.parse(date2).compareTo(dateFormat.parse(date1));
@@ -55,15 +54,6 @@ public class RecordsViewModel extends ViewModel {
                 return 0;
             }
         });
-
-        /*sortedDates.sort((date1, date2) -> {
-            try {
-                return dateFormat.parse(date1).compareTo(dateFormat.parse(date2));
-            } catch (Exception e) {
-                e.printStackTrace();
-                return 0;
-            }
-        });*/
 
         for (String date : sortedDates) {
             // Add the date header
@@ -81,7 +71,7 @@ public class RecordsViewModel extends ViewModel {
     }
 
     // This method is used to calculate the total income and expense
-    public Map<String, Float> calculateTotals(List<Record> records) {
+    public Map<String, Float> calculateTotals() {
         float incomeTotal = 0;
         float expenseTotal = 0;
 
