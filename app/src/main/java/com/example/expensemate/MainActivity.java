@@ -85,14 +85,9 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // 點擊紀錄跳轉畫面
-        recordsAdapter.setOnItemClickListener((record, recordId) -> {
+        recordsAdapter.setOnItemClickListener((recordId) -> {
             Intent intent = new Intent(MainActivity.this, EditRecordActivity.class);
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
             intent.putExtra("recordId", recordId);
-            intent.putExtra("recordName", record.getName());
-            intent.putExtra("recordPrice", record.getPrice());
-            intent.putExtra("recordType", record.getType());
-            intent.putExtra("recordDate", dateFormat.format(record.getDate()));
             recordLauncher.launch(intent);
         });
     }

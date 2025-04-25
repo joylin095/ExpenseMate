@@ -38,16 +38,31 @@ public class User {
         this.recordManager.selectType(type);
     }
 
+    public String getRecordType() {
+        return this.recordManager.getRecordType();
+    }
+
     public void enterName(String name) {
         this.recordManager.enterName(name);
+    }
+    public String getRecordName() {
+        return this.recordManager.getRecordName();
     }
 
     public void enterPrice(float price) {
         this.recordManager.enterPrice(price);
     }
 
+    public float getRecordPrice() {
+        return this.recordManager.getRecordPrice();
+    }
+
     public void selectDate(Date date) {
         this.recordManager.selectDate(date);
+    }
+
+    public Date getRecordDate() {
+        return this.recordManager.getRecordDate();
     }
 
     public void selectTag(String tagName) {

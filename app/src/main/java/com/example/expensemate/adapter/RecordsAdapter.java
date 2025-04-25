@@ -12,6 +12,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.expensemate.R;
 import com.example.expensemate.model.DateRecord;
 import com.example.expensemate.model.Record;
+import com.example.expensemate.model.Tag;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -35,7 +38,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecordsAdapter.RecordVi
     }
 
     public interface OnItemClickListener {
-        void onItemClick(Record record, String recordId);
+        void onItemClick(String recordId);
     }
 
     public void setOnItemClickListener(OnItemClickListener listener) {
@@ -123,16 +126,18 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecordsAdapter.RecordVi
 
     public class RecordViewHolder extends RecyclerView.ViewHolder {
         TextView textViewName, textViewType, textViewPrice;
+        ChipGroup chipGroupTags;
 
         public RecordViewHolder(@NonNull View itemView) {
             super(itemView);
             textViewName = itemView.findViewById(R.id.textViewName);
             textViewType = itemView.findViewById(R.id.textViewType);
             textViewPrice = itemView.findViewById(R.id.textViewPrice);
+            chipGroupTags = itemView.findViewById(R.id.chipGroupTags);
             itemView.setOnClickListener(v -> {
                 int position = getAdapterPosition();
                 if (position != RecyclerView.NO_POSITION && onItemClickListener != null) {
-                    onItemClickListener.onItemClick((Record) itemList.get(position), ((Record) itemList.get(position)).getId());
+                    onItemClickListener.onItemClick(((Record) itemList.get(position)).getId());
                 }
             });
         }
@@ -141,6 +146,15 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecordsAdapter.RecordVi
             textViewName.setText(record.getName());
             textViewType.setText(record.getType());
             textViewPrice.setText(String.valueOf(record.getPrice()));
+
+            chipGroupTags.removeAllViews();
+            for (Tag tag : record.getTags()) {
+                Chip chip = new Chip(itemView.getContext());
+                chip.setText(tag.getName());
+                chip.setCheckable(false);
+                chip.setClickable(true);
+                chipGroupTags.addView(chip);
+            }
         }
     }
 }

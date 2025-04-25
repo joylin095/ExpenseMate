@@ -13,14 +13,18 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.expensemate.controller.User;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 
 public class EditRecordActivity extends AppCompatActivity {
     private EditText editTextName, editTextPrice, editTextDate;
     private RadioGroup radioGroupType;
+    private ChipGroup chipGroupSelectedTags, chipGroupAvailableTags;
     private User user = User.getInstance();
 
     @Override
@@ -36,6 +40,8 @@ public class EditRecordActivity extends AppCompatActivity {
         editTextPrice = findViewById(R.id.editTextPrice);
         radioGroupType = findViewById(R.id.radioGroupType);
         editTextDate = findViewById(R.id.editTextDate);
+        chipGroupSelectedTags = findViewById(R.id.chipGroupSelectedTags);
+        chipGroupAvailableTags = findViewById(R.id.chipGroupAvailableTags);
 
         Intent intent = getIntent();
         SetRecordData(intent);
@@ -46,21 +52,52 @@ public class EditRecordActivity extends AppCompatActivity {
 
     private void SetRecordData(Intent intent) {
         String recordId = intent.getStringExtra("recordId");
-        String name = intent.getStringExtra("recordName");
-        String recordType = intent.getStringExtra("recordType");
-        String date = intent.getStringExtra("recordDate");
-        float price = intent.getFloatExtra("recordPrice", 0.0f);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        user.selectRecord(recordId);
 
-        editTextName.setText(name);
-        editTextPrice.setText(String.valueOf(price));
-        editTextDate.setText(date);
-        if (recordType.equals("Income")) {
+        editTextName.setText(user.getRecordName());
+        editTextPrice.setText(String.valueOf(user.getRecordPrice()));
+        editTextDate.setText(dateFormat.format(user.getRecordDate()));
+        if (user.getRecordType().equals("Income")) {
             radioGroupType.check(R.id.radioButtonIncome);
         } else {
             radioGroupType.check(R.id.radioButtonExpense);
         }
 
-        user.selectRecord(recordId);
+        populateAvailableTags();
+        updateSelectedTags();
+    }
+
+    private void populateAvailableTags() {
+        chipGroupAvailableTags.removeAllViews();
+
+        for (String tagName : user.getAvaliableTags()){
+            Chip chip = new Chip(this);
+            chip.setText(tagName);
+            chip.setCheckable(false);
+            chip.setClickable(true);
+
+            chip.setOnClickListener(v -> {
+                user.selectTag(tagName);
+                updateSelectedTags();
+            });
+            chipGroupAvailableTags.addView(chip);
+        }
+    }
+
+    private void updateSelectedTags() {
+        chipGroupSelectedTags.removeAllViews();
+
+        for (String tagName : user.getSelectedTags()) {
+            Chip chip = new Chip(this);
+            chip.setText(tagName);
+            chip.setCloseIconVisible(true);
+            chip.setOnCloseIconClickListener(v -> {
+                user.deleteSelectedTag(tagName);
+                updateSelectedTags();
+            });
+            chipGroupSelectedTags.addView(chip);
+        }
     }
 
     private void editRecord() {
