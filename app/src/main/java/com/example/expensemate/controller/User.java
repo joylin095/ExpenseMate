@@ -6,8 +6,8 @@ import com.example.expensemate.model.Record;
 import com.example.expensemate.model.Tag;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class User {
     private RecordManager recordManager;
@@ -50,6 +50,16 @@ public class User {
         this.recordManager.selectDate(date);
     }
 
+    public void selectTag(String tagName) {
+        Tag tag = this.tagManager.selectTag(tagName);
+        this.recordManager.setTag(tag);
+    }
+
+    public void deleteSelectedTag(String tagName) {
+        Tag tag = this.tagManager.selectTag(tagName);
+        this.recordManager.deleteTag(tag);
+    }
+
     public void saveRecord() {
         this.recordManager.saveRecord();
     }
@@ -62,7 +72,11 @@ public class User {
         return this.recordManager.getRecordList();
     }
 
-    public Set<Tag> getAvaliableTags() {
+    public List<String> getAvaliableTags() {
         return this.tagManager.getTagList();
+    }
+
+    public List<String> getSelectedTags() {
+        return this.recordManager.getSelectedTags();
     }
 }

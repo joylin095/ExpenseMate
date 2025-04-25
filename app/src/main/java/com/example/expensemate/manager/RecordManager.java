@@ -1,6 +1,7 @@
 package com.example.expensemate.manager;
 
 import com.example.expensemate.model.Record;
+import com.example.expensemate.model.Tag;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -40,6 +41,14 @@ public class RecordManager {
         this.record.setDate(date);
     }
 
+    public void setTag(Tag tag){
+        this.record.setTag(tag);
+    }
+
+    public void deleteTag(Tag tag){
+        this.record.deleteTag(tag);
+    }
+
     public void saveRecord(){
         this.recordList.put(this.record.getId(), this.record);
     }
@@ -50,5 +59,13 @@ public class RecordManager {
 
     public Map<String, Record> getRecordList() {
         return recordList;
+    }
+
+    public List<String> getSelectedTags() {
+        List<String> selectedTags = new ArrayList<>();
+        for (Tag tag : this.record.getTags()) {
+            selectedTags.add(tag.getName());
+        }
+        return selectedTags;
     }
 }

@@ -10,4 +10,8 @@ public class Tag {
     public String getName() {
         return name;
     }
+
+    public boolean matchName(String name) {
+        return this.name.equals(name);
+    }
 }

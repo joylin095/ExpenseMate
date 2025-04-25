@@ -10,7 +10,6 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.expensemate.controller.User;
-import com.example.expensemate.model.Tag;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 
@@ -34,6 +33,7 @@ public class AddRecordActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_record);
 
+        user.createRecord();
         initViews();
     }
 
@@ -80,17 +80,15 @@ public class AddRecordActivity extends AppCompatActivity {
     private void populateAvailableTags() {
         chipGroupAvailableTags.removeAllViews();
 
-        for (Tag tag : user.getAvaliableTags()){
+        for (String tagName : user.getAvaliableTags()){
             Chip chip = new Chip(this);
-            chip.setText(tag.getName());
+            chip.setText(tagName);
             chip.setCheckable(false);
             chip.setClickable(true);
 
             chip.setOnClickListener(v -> {
-                if (!selectedTags.contains(tag.getName())){
-                    selectedTags.add(tag.getName());
-                    updateSelectedTags();
-                }
+                user.selectTag(tagName);
+                updateSelectedTags();
             });
             chipGroupAvailableTags.addView(chip);
         }
@@ -99,12 +97,12 @@ public class AddRecordActivity extends AppCompatActivity {
     private void updateSelectedTags() {
         chipGroupSelectedTags.removeAllViews();
 
-        for (String tagName : selectedTags) {
+        for (String tagName : user.getSelectedTags()) {
             Chip chip = new Chip(this);
             chip.setText(tagName);
             chip.setCloseIconVisible(true);
             chip.setOnCloseIconClickListener(v -> {
-                selectedTags.remove(tagName);
+                user.deleteSelectedTag(tagName);
                 updateSelectedTags();
             });
             chipGroupSelectedTags.addView(chip);
@@ -122,7 +120,6 @@ public class AddRecordActivity extends AppCompatActivity {
             float price = Float.parseFloat(priceStr);
             calendar.setTime(dateFormat.parse(dateStr));
 
-            user.createRecord();
             user.selectType(type);
             user.enterName(name);
             user.enterPrice(price);
