@@ -10,19 +10,24 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.expensemate.controller.User;
+import com.example.expensemate.model.Tag;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Calendar;
 import java.util.Locale;
 
 public class AddRecordActivity extends AppCompatActivity {
-    private EditText editTextName;
-    private EditText editTextPrice;
+    private EditText editTextName, editTextPrice, editTextDate;
     private RadioGroup radioGroupType;
     private RadioButton radioButtonExpense;
-    private EditText editTextDate;
+    private ChipGroup chipGroupSelectedTags, chipGroupAvailableTags;
     private String type = "Expense";
-    private User user;
+    private User user = User.getInstance();
+    private List<String> selectedTags = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +43,8 @@ public class AddRecordActivity extends AppCompatActivity {
         radioGroupType = findViewById(R.id.radioGroupType);
         radioButtonExpense = findViewById(R.id.radioButtonExpense);
         editTextDate = findViewById(R.id.editTextDate);
+        chipGroupSelectedTags = findViewById(R.id.chipGroupSelectedTags);
+        chipGroupAvailableTags = findViewById(R.id.chipGroupAvailableTags);
 
         radioButtonExpense.setChecked(true);
 
@@ -50,34 +57,9 @@ public class AddRecordActivity extends AppCompatActivity {
         });
 
         findViewById(R.id.btnSave).setOnClickListener(v -> saveRecord());
+
         initEditTextDate();
-    }
-
-    private void saveRecord() {
-        String name = editTextName.getText().toString().trim();
-        String priceStr = editTextPrice.getText().toString().trim();
-        String dateStr = editTextDate.getText().toString().trim();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        Calendar calendar = Calendar.getInstance();
-
-        try{
-            float price = Float.parseFloat(priceStr);
-            calendar.setTime(dateFormat.parse(dateStr));
-
-            user = User.getInstance();
-            user.createRecord();
-            user.selectType(type);
-            user.enterName(name);
-            user.enterPrice(price);
-            user.selectDate(calendar.getTime());
-            user.saveRecord();
-
-            setResult(RESULT_OK);
-            finish();
-        }
-        catch (Exception e){
-            Toast.makeText(this, "格式錯誤", Toast.LENGTH_SHORT).show();
-        }
+        populateAvailableTags();
     }
 
     private void initEditTextDate() {
@@ -93,5 +75,65 @@ public class AddRecordActivity extends AppCompatActivity {
             }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
             datePickerDialog.show();
         });
+    }
+
+    private void populateAvailableTags() {
+        chipGroupAvailableTags.removeAllViews();
+
+        for (Tag tag : user.getAvaliableTags()){
+            Chip chip = new Chip(this);
+            chip.setText(tag.getName());
+            chip.setCheckable(false);
+            chip.setClickable(true);
+
+            chip.setOnClickListener(v -> {
+                if (!selectedTags.contains(tag.getName())){
+                    selectedTags.add(tag.getName());
+                    updateSelectedTags();
+                }
+            });
+            chipGroupAvailableTags.addView(chip);
+        }
+    }
+
+    private void updateSelectedTags() {
+        chipGroupSelectedTags.removeAllViews();
+
+        for (String tagName : selectedTags) {
+            Chip chip = new Chip(this);
+            chip.setText(tagName);
+            chip.setCloseIconVisible(true);
+            chip.setOnCloseIconClickListener(v -> {
+                selectedTags.remove(tagName);
+                updateSelectedTags();
+            });
+            chipGroupSelectedTags.addView(chip);
+        }
+    }
+
+    private void saveRecord() {
+        String name = editTextName.getText().toString().trim();
+        String priceStr = editTextPrice.getText().toString().trim();
+        String dateStr = editTextDate.getText().toString().trim();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        Calendar calendar = Calendar.getInstance();
+
+        try{
+            float price = Float.parseFloat(priceStr);
+            calendar.setTime(dateFormat.parse(dateStr));
+
+            user.createRecord();
+            user.selectType(type);
+            user.enterName(name);
+            user.enterPrice(price);
+            user.selectDate(calendar.getTime());
+            user.saveRecord();
+
+            setResult(RESULT_OK);
+            finish();
+        }
+        catch (Exception e){
+            Toast.makeText(this, "格式錯誤", Toast.LENGTH_SHORT).show();
+        }
     }
 }

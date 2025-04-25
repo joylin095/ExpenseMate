@@ -1,19 +1,22 @@
 package com.example.expensemate.controller;
 
 import com.example.expensemate.manager.RecordManager;
+import com.example.expensemate.manager.TagManager;
 import com.example.expensemate.model.Record;
+import com.example.expensemate.model.Tag;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class User {
     private RecordManager recordManager;
+    private TagManager tagManager;
     private static User userInstance;
 
     public User() {
         this.recordManager = new RecordManager();
+        this.tagManager = new TagManager();
     }
 
     public static User getInstance() {
@@ -57,5 +60,9 @@ public class User {
 
     public Map<String, Record> getRecordList() {
         return this.recordManager.getRecordList();
+    }
+
+    public Set<Tag> getAvaliableTags() {
+        return this.tagManager.getTagList();
     }
 }
