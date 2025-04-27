@@ -65,6 +65,10 @@ public class User {
         return this.recordManager.getRecordDate();
     }
 
+    public void addTag(String tagName) {
+        this.tagManager.createTag(tagName);
+    }
+
     public void selectTag(String tagName) {
         Tag tag = this.tagManager.selectTag(tagName);
         this.recordManager.setTag(tag);

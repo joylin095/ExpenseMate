@@ -1,16 +1,14 @@
 package com.example.expensemate;
 
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.EditText;
 import android.widget.RadioGroup;
+import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.example.expensemate.controller.User;
 import com.google.android.material.chip.Chip;
@@ -18,7 +16,6 @@ import com.google.android.material.chip.ChipGroup;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.List;
 import java.util.Locale;
 
 public class EditRecordActivity extends AppCompatActivity {
@@ -46,8 +43,73 @@ public class EditRecordActivity extends AppCompatActivity {
         Intent intent = getIntent();
         SetRecordData(intent);
 
-        findViewById(R.id.btnEdit).setOnClickListener(v -> editRecord());
+        initEditTextName();
+        initEditTextPrice();
+        initEditRadioGroup();
         initEditTextDate();
+
+        findViewById(R.id.btnEdit).setOnClickListener(v -> editRecord());
+
+    }
+
+    private void initEditTextName() {
+        editTextName.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus) {
+                try{
+                    String name = editTextName.getText().toString().trim();
+                    user.enterName(name);
+                    editTextName.setText(user.getRecordName());
+                } catch (Exception e) {
+                    editTextName.setError("名稱不可為空");
+                }
+            }
+        });
+    }
+
+    private void initEditTextPrice(){
+        editTextPrice.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus) {
+                String priceStr = editTextPrice.getText().toString().trim();
+                try {
+                    float price = Float.parseFloat(priceStr);
+                    user.enterPrice(price);
+                    editTextPrice.setText(String.valueOf(user.getRecordPrice()));
+                } catch (Exception e) {
+                    editTextPrice.setError("價格格式錯誤或不為空");
+                    user.enterPrice(0);
+                }
+            }
+        });
+    }
+
+    private void initEditRadioGroup() {
+        radioGroupType.setOnCheckedChangeListener((group, checkedId) -> {
+            if (checkedId == R.id.radioButtonIncome) {
+                user.selectType("Income");
+            } else if (checkedId == R.id.radioButtonExpense) {
+                user.selectType("Expense");
+            }
+        });
+    }
+
+    private void initEditTextDate() {
+        editTextDate.setFocusableInTouchMode(false);
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+
+        editTextDate.setOnClickListener(v -> {
+            DatePickerDialog datePickerDialog = new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
+                String selectedDate = year + "-" + (month + 1) + "-" + dayOfMonth;
+                editTextDate.setText(selectedDate);
+                try {
+                    calendar.setTime(dateFormat.parse(selectedDate));
+                    user.selectDate(calendar.getTime());
+                } catch (Exception e) {
+                    Toast.makeText(this, "日期格式錯誤", Toast.LENGTH_SHORT).show();
+                }
+            }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+            datePickerDialog.show();
+        });
     }
 
     private void SetRecordData(Intent intent) {
@@ -71,6 +133,7 @@ public class EditRecordActivity extends AppCompatActivity {
     private void populateAvailableTags() {
         chipGroupAvailableTags.removeAllViews();
 
+        setAddTagChip();
         for (String tagName : user.getAvaliableTags()){
             Chip chip = new Chip(this);
             chip.setText(tagName);
@@ -93,49 +156,62 @@ public class EditRecordActivity extends AppCompatActivity {
             chip.setText(tagName);
             chip.setCloseIconVisible(true);
             chip.setOnCloseIconClickListener(v -> {
-                user.deleteSelectedTag(tagName);
+                try{
+                    user.deleteSelectedTag(tagName);
+                } catch (Exception e) {
+                    Toast.makeText(this, "至少需一個標籤", Toast.LENGTH_SHORT).show();
+                }
                 updateSelectedTags();
             });
             chipGroupSelectedTags.addView(chip);
         }
     }
 
+    private void setAddTagChip() {
+        Chip chip = new Chip(this);
+        chip.setText("+");
+        chip.setCheckable(false);
+        chip.setClickable(true);
+
+        chip.setOnClickListener(v -> {
+            showAddTagDialog();
+        });
+        chipGroupAvailableTags.addView(chip);
+    }
+
+    private void showAddTagDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("新增標籤");
+
+        EditText input = new EditText(this);
+        builder.setView(input);
+
+        builder.setPositiveButton("新增", (dialog, which) -> {
+            String tagName = input.getText().toString().trim();
+            if (!tagName.isEmpty()) {
+                user.addTag(tagName);
+                user.selectTag(tagName);
+                populateAvailableTags();
+                updateSelectedTags();
+            } else {
+                Toast.makeText(this, "標籤名稱不可為空", Toast.LENGTH_SHORT).show();
+            }
+        });
+        builder.setNegativeButton("取消", (dialog, which) -> dialog.cancel());
+        builder.show();
+    }
+
     private void editRecord() {
-        String name = editTextName.getText().toString().trim();
-        String priceStr = editTextPrice.getText().toString().trim();
-        float price = Float.parseFloat(priceStr);
-        String type = radioGroupType.getCheckedRadioButtonId() == R.id.radioButtonIncome ? "Income" : "Expense";
-        String dateStr = editTextDate.getText().toString().trim();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        Calendar calendar = Calendar.getInstance();
+        editTextName.clearFocus();
+        editTextPrice.clearFocus();
 
         try {
-            calendar.setTime(dateFormat.parse(dateStr));
-
-            user.enterName(name);
-            user.enterPrice(price);
-            user.selectType(type);
-            user.selectDate(calendar.getTime());
             user.editRecord();
-
-            Intent resultIntent = new Intent();
-            setResult(RESULT_OK, resultIntent);
+            setResult(RESULT_OK);
             finish();
         }
         catch (Exception e) {
-            e.printStackTrace();
+            Toast.makeText(this, "請檢查資料，每項為必填", Toast.LENGTH_SHORT).show();
         }
-    }
-
-    private void initEditTextDate() {
-        Calendar calendar = Calendar.getInstance();
-
-        editTextDate.setOnClickListener(v -> {
-            DatePickerDialog datePickerDialog = new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
-                String selectedDate = year + "-" + (month + 1) + "-" + dayOfMonth;
-                editTextDate.setText(selectedDate);
-            }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
-            datePickerDialog.show();
-        });
     }
 }

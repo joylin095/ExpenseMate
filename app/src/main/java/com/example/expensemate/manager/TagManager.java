@@ -12,12 +12,19 @@ public class TagManager {
 
     public TagManager() {
         this.tagList = new LinkedHashSet<>();
-        this.tagList.add(new Tag("食費"));
-        this.tagList.add(new Tag("交通費"));
-        this.tagList.add(new Tag("娯楽費"));
-        this.tagList.add(new Tag("光熱費"));
-        this.tagList.add(new Tag("通信費"));
-        this.tagList.add(new Tag("医療費"));
+        this.tagList.add(new Tag("食物"));
+        this.tagList.add(new Tag("娛樂"));
+        this.tagList.add(new Tag("交通"));
+    }
+
+    public void createTag(String tagName) {
+        for (Tag tag : tagList) {
+            if (tag.matchName(tagName)) {
+                return; // Tag already exists
+            }
+        }
+        Tag newTag = new Tag(tagName);
+        tagList.add(newTag);
     }
 
     public Tag selectTag(String tagName) {

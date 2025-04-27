@@ -11,66 +11,77 @@ import java.util.Map;
 
 public class RecordManager {
     private Map<String, Record> recordList;
-    private Record record;
+    private Record currentRecord;
 
     public RecordManager(){
         this.recordList = new HashMap<>();
     }
 
     public void createRecord(){
-        this.record = new Record();
+        this.currentRecord = new Record();
     }
 
     public void selectRecord(String recordId){
-        this.record = this.recordList.get(recordId);
+        Record originalRecord = this.recordList.get(recordId);
+        this.currentRecord = new Record(originalRecord);
     }
 
     public void selectType(String type){
-        this.record.setType(type);
+        this.currentRecord.setType(type);
     }
 
     public String getRecordType(){
-        return this.record.getType();
+        return this.currentRecord.getType();
     }
 
     public void enterName(String name){
-        this.record.setName(name);
+        this.currentRecord.setName(name);
     }
 
     public String getRecordName(){
-        return this.record.getName();
+        return this.currentRecord.getName();
     }
 
     public void enterPrice(float price){
-        this.record.setPrice(price);
+        this.currentRecord.setPrice(price);
     }
 
     public float getRecordPrice(){
-        return this.record.getPrice();
+        return this.currentRecord.getPrice();
     }
 
     public void selectDate(Date date){
-        this.record.setDate(date);
+        this.currentRecord.setDate(date);
     }
 
     public Date getRecordDate(){
-        return this.record.getDate();
+        return this.currentRecord.getDate();
     }
 
     public void setTag(Tag tag){
-        this.record.setTag(tag);
+        this.currentRecord.setTag(tag);
     }
 
     public void deleteTag(Tag tag){
-        this.record.deleteTag(tag);
+        this.currentRecord.deleteTag(tag);
     }
 
     public void saveRecord(){
-        this.recordList.put(this.record.getId(), this.record);
+        if (this.currentRecord.isValid()){
+            this.recordList.put(this.currentRecord.getId(), this.currentRecord);
+        }
+        else{
+            throw new IllegalArgumentException("Invalid record");
+        }
     }
 
     public void editRecord() {
-        this.recordList.put(this.record.getId(), this.record);
+        if (this.currentRecord.isValid()){
+            this.recordList.put(this.currentRecord.getId(), this.currentRecord);
+        }
+        else{
+            throw new IllegalArgumentException("Invalid record");
+        }
     }
 
     public Map<String, Record> getRecordList() {
@@ -79,7 +90,7 @@ public class RecordManager {
 
     public List<String> getSelectedTags() {
         List<String> selectedTags = new ArrayList<>();
-        for (Tag tag : this.record.getTags()) {
+        for (Tag tag : this.currentRecord.getTags()) {
             selectedTags.add(tag.getName());
         }
         return selectedTags;
