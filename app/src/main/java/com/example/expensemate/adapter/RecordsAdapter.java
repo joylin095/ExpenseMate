@@ -145,6 +145,11 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecordsAdapter.RecordVi
         public void bind(Record record) {
             textViewName.setText(record.getName());
             textViewType.setText(record.getType());
+            if (record.getType().equals("Expense")) {
+                textViewPrice.setTextColor(itemView.getContext().getResources().getColor(android.R.color.holo_red_dark));
+            } else {
+                textViewPrice.setTextColor(itemView.getContext().getResources().getColor(android.R.color.holo_blue_dark));
+            }
             textViewPrice.setText(String.valueOf(record.getPrice()));
 
             chipGroupTags.removeAllViews();
