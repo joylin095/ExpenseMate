@@ -1,6 +1,7 @@
 package com.example.expensemate;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.TextView;
@@ -19,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.expensemate.adapter.RecordsAdapter;
 import com.example.expensemate.controller.RecordsViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.kal.rackmonthpicker.RackMonthPicker;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -63,6 +65,8 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
         );
+
+        textViewMonth.setOnClickListener(v -> showDatePickerDialog());
     }
 
     private void initViews() {
@@ -151,5 +155,17 @@ public class MainActivity extends AppCompatActivity {
             currentYear++;
         }
         updateViews();
+    }
+
+    private void showDatePickerDialog() {
+        new RackMonthPicker(this).setLocale(Locale.getDefault())
+                .setNegativeText("取消")
+                .setPositiveText("確認")
+                .setPositiveButton((month, startDate, endDate, year, monthLabel) -> {
+                    currentYear = year;
+                    currentMonth = month - 1;
+                    updateViews();
+                })
+                .setNegativeButton(Dialog::cancel).show();
     }
 }
