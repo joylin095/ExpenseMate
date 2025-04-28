@@ -136,7 +136,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecordsAdapter.RecordVi
             chipGroupTags = itemView.findViewById(R.id.chipGroupTags);
             itemView.setOnClickListener(v -> {
                 int position = getAdapterPosition();
-                if (position != RecyclerView.NO_POSITION && onItemClickListener != null) {
+                if (position != RecyclerView.NO_POSITION && onItemClickListener != null && itemList.get(position) instanceof Record) {
                     onItemClickListener.onItemClick(((Record) itemList.get(position)).getId());
                 }
             });
