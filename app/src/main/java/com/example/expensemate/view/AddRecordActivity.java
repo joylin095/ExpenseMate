@@ -1,5 +1,7 @@
-package com.example.expensemate;
+package com.example.expensemate.view;
 import android.widget.Toast;
+
+import com.example.expensemate.R;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;

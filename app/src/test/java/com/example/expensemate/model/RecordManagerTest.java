@@ -1,7 +1,4 @@
-package com.example.expensemate.manager;
-
-import com.example.expensemate.model.Record;
-import com.example.expensemate.model.Tag;
+package com.example.expensemate.model;
 
 import org.junit.Before;
 import org.junit.Test;

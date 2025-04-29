@@ -1,4 +1,4 @@
-package com.example.expensemate.adapter;
+package com.example.expensemate.view;
 
 import android.annotation.SuppressLint;
 import android.view.LayoutInflater;

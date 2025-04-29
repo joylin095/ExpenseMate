@@ -1,7 +1,9 @@
-package com.example.expensemate;
+package com.example.expensemate.view;
 
 import android.content.Intent;
 import android.widget.Toast;
+
+import com.example.expensemate.R;
 
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -15,11 +17,11 @@ public class EditRecordActivity extends BaseRecordActivity {
     @Override
     protected void setupSpecificLogic() {
         Intent intent = getIntent();
-        SetRecordData(intent);
+        setRecordData(intent);
         findViewById(R.id.btnEdit).setOnClickListener(v -> editRecord());
     }
 
-    private void SetRecordData(Intent intent) {
+    private void setRecordData(Intent intent) {
         String recordId = intent.getStringExtra("recordId");
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         user.selectRecord(recordId);

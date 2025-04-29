@@ -1,9 +1,10 @@
-package com.example.expensemate.controller;
+package com.example.expensemate.viewModel;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.expensemate.model.User;
 import com.example.expensemate.model.DateRecord;
 import com.example.expensemate.model.Record;
 

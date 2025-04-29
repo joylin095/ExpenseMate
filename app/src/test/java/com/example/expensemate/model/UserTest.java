@@ -1,6 +1,4 @@
-package com.example.expensemate.controller;
-
-import com.example.expensemate.model.Record;
+package com.example.expensemate.model;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -73,7 +71,7 @@ public class UserTest {
         List<String> selectedTags = user.getSelectedTags();
         assertTrue(selectedTags.contains("交通"));
 
-        user.deleteSelectedTag("交通");
+        user.unselectTag("交通");
         selectedTags = user.getSelectedTags();
         assertFalse(selectedTags.contains("交通"));
     }
@@ -89,7 +87,7 @@ public class UserTest {
         assertTrue(selectedTags.contains("娛樂"));
 
         try {
-            user.deleteSelectedTag("娛樂");
+            user.unselectTag("娛樂");
             fail("Should throw exception when deleting the last tag");
         } catch (IllegalArgumentException e) {
             assertEquals("Cannot delete the last tag", e.getMessage());
@@ -99,7 +97,7 @@ public class UserTest {
 
     @Test
     public void getAvailableTags_shouldReturnDefaultTags() {
-        List<String> tags = user.getAvaliableTags();
+        List<String> tags = user.getAvailableTags();
         assertTrue(tags.contains("食物"));
         assertTrue(tags.contains("娛樂"));
         assertTrue(tags.contains("交通"));

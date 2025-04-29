@@ -1,4 +1,4 @@
-package com.example.expensemate;
+package com.example.expensemate.view;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
@@ -17,8 +17,8 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.expensemate.adapter.RecordsAdapter;
-import com.example.expensemate.controller.RecordsViewModel;
+import com.example.expensemate.R;
+import com.example.expensemate.viewModel.RecordsViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.kal.rackmonthpicker.RackMonthPicker;
 

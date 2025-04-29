@@ -1,6 +1,4 @@
-package com.example.expensemate.manager;
-
-import com.example.expensemate.model.Tag;
+package com.example.expensemate.model;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;

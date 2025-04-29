@@ -40,7 +40,7 @@ public class Record {
         }
     }
 
-    public boolean isNameValid(String name) {
+    private boolean isNameValid(String name) {
         return name != null && !name.isEmpty();
     }
 

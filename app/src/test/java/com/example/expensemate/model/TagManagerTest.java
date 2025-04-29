@@ -1,8 +1,6 @@
-package com.example.expensemate.manager;
+package com.example.expensemate.model;
 
 import static org.junit.Assert.*;
-
-import com.example.expensemate.model.Tag;
 
 import org.junit.Before;
 import org.junit.Test;

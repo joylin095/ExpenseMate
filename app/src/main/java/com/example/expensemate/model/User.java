@@ -1,9 +1,4 @@
-package com.example.expensemate.controller;
-
-import com.example.expensemate.manager.RecordManager;
-import com.example.expensemate.manager.TagManager;
-import com.example.expensemate.model.Record;
-import com.example.expensemate.model.Tag;
+package com.example.expensemate.model;
 
 import java.util.Date;
 import java.util.List;
@@ -30,8 +25,8 @@ public class User {
         this.recordManager.createRecord();
     }
 
-    public void selectRecord(String recordId) {
-        this.recordManager.selectRecord(recordId);
+    public void selectRecord(String id) {
+        this.recordManager.selectRecord(id);
     }
 
     public void selectType(String type) {
@@ -74,7 +69,7 @@ public class User {
         this.recordManager.setTag(tag);
     }
 
-    public void deleteSelectedTag(String tagName) {
+    public void unselectTag(String tagName) {
         Tag tag = this.tagManager.selectTag(tagName);
         this.recordManager.deleteTag(tag);
     }
@@ -91,7 +86,7 @@ public class User {
         return this.recordManager.getRecordList();
     }
 
-    public List<String> getAvaliableTags() {
+    public List<String> getAvailableTags() {
         return this.tagManager.getTagList();
     }
 

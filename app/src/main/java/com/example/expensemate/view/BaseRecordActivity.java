@@ -1,4 +1,4 @@
-package com.example.expensemate;
+package com.example.expensemate.view;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
@@ -9,7 +9,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.expensemate.controller.User;
+import com.example.expensemate.R;
+import com.example.expensemate.model.User;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 
@@ -129,7 +130,7 @@ public abstract class BaseRecordActivity extends AppCompatActivity {
         chipGroupAvailableTags.removeAllViews();
 
         setAddTagChip();
-        for (String tagName : user.getAvaliableTags()) {
+        for (String tagName : user.getAvailableTags()) {
             Chip chip = new Chip(this);
             chip.setText(tagName);
             chip.setCheckable(false);
@@ -155,7 +156,7 @@ public abstract class BaseRecordActivity extends AppCompatActivity {
             chip.setCloseIconVisible(true);
             chip.setOnCloseIconClickListener(v -> {
                 try {
-                    user.deleteSelectedTag(tagName);
+                    user.unselectTag(tagName);
                 } catch (Exception e) {
                     Toast.makeText(this, "至少需一個標籤", Toast.LENGTH_SHORT).show();
                 }
