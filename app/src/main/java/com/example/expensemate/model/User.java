@@ -9,7 +9,7 @@ public class User {
     private TagManager tagManager;
     private static User userInstance;
 
-    public User() {
+    private User() {
         this.recordManager = new RecordManager();
         this.tagManager = new TagManager();
     }
@@ -19,6 +19,10 @@ public class User {
             userInstance = new User();
         }
         return userInstance;
+    }
+
+    public static void resetInstance() {
+        userInstance = null;
     }
 
     public void createRecord() {

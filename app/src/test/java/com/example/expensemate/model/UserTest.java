@@ -1,5 +1,6 @@
 package com.example.expensemate.model;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -15,7 +16,12 @@ public class UserTest {
 
     @Before
     public void setUp() {
-        user = new User();
+        user = User.getInstance();
+    }
+
+    @After
+    public void tearDown() {
+        User.resetInstance();
     }
 
     @Test
