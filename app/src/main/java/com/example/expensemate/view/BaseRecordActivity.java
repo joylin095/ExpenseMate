@@ -16,6 +16,7 @@ import com.google.android.material.chip.ChipGroup;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 import java.util.Date;
 
@@ -24,6 +25,8 @@ public abstract class BaseRecordActivity extends AppCompatActivity {
     protected RadioGroup radioGroupType;
     protected ChipGroup chipGroupSelectedTags, chipGroupAvailableTags;
     protected User user = User.getInstance();
+    private static final int MAX_VISIBLE_TAGS = 5;
+    private boolean tagsExpanded = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,7 +133,12 @@ public abstract class BaseRecordActivity extends AppCompatActivity {
         chipGroupAvailableTags.removeAllViews();
 
         setAddTagChip();
-        for (String tagName : user.getAvailableTags()) {
+
+        List<String> tags = user.getAvailableTags();
+        int displayCount = tagsExpanded ? tags.size() : Math.min(tags.size(), MAX_VISIBLE_TAGS);
+
+        for (int i = 0; i < displayCount; i++) {
+            String tagName = tags.get(i);
             Chip chip = new Chip(this);
             chip.setText(tagName);
             chip.setCheckable(false);
@@ -142,6 +150,26 @@ public abstract class BaseRecordActivity extends AppCompatActivity {
             });
             chipGroupAvailableTags.addView(chip);
         }
+
+        if (tags.size() > MAX_VISIBLE_TAGS){
+            setToggleChip();
+        }
+    }
+
+    /**
+     * 顯示展開或收起標籤的chip
+     */
+    private void setToggleChip() {
+        Chip chip = new Chip(this);
+        chip.setText(tagsExpanded ? "▲" : "▼");
+        chip.setCheckable(false);
+        chip.setClickable(true);
+
+        chip.setOnClickListener(v -> {
+            tagsExpanded = !tagsExpanded;
+            populateAvailableTags();
+        });
+        chipGroupAvailableTags.addView(chip);
     }
 
     /**
