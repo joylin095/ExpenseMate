@@ -29,6 +29,14 @@ public class User {
         this.recordManager.createRecord();
     }
 
+    public Record getRecord() {
+        return this.recordManager.getRecord();
+    }
+
+    public void setRecords(List<Record> records) {
+        this.recordManager.setRecords(records);
+    }
+
     public void selectRecord(String id) {
         this.recordManager.selectRecord(id);
     }

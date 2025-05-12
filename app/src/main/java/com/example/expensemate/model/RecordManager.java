@@ -18,6 +18,16 @@ public class RecordManager {
         this.currentRecord = new Record();
     }
 
+    public Record getRecord(){
+        return this.currentRecord;
+    }
+
+    public void setRecords(List<Record> records){
+        for (Record record : records) {
+            this.recordList.put(record.getId(), record);
+        }
+    }
+
     public void selectRecord(String recordId){
         Record originalRecord = this.recordList.get(recordId);
         this.currentRecord = new Record(originalRecord);

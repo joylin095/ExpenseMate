@@ -16,14 +16,22 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Room;
 
 import com.example.expensemate.R;
+import com.example.expensemate.database.AppDatabase;
+import com.example.expensemate.entity.RecordEntity;
+import com.example.expensemate.entity.RecordMapper;
+import com.example.expensemate.model.Record;
+import com.example.expensemate.model.User;
 import com.example.expensemate.viewModel.RecordsViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.kal.rackmonthpicker.RackMonthPicker;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -34,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView textViewMonth, textViewBalance, textViewIncome, textViewExpense;
     private int currentYear, currentMonth;
     private ActivityResultLauncher<Intent> recordLauncher;
+    private User user = User.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        AppDatabase db = Room.databaseBuilder(getApplicationContext(), AppDatabase.class, "expensemate-db").build();
 
         recordsViewModel = new ViewModelProvider(this).get(RecordsViewModel.class);
         recordsViewModel.getRecordList().observe(this, records -> {
@@ -52,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
             recordsAdapter.notifyDataSetChanged();
         });
 
+        loadRecords();
         initViews();
         initCurrentDate();
         initMonth();
@@ -67,6 +78,21 @@ public class MainActivity extends AppCompatActivity {
         );
 
         textViewMonth.setOnClickListener(v -> showDatePickerDialog());
+    }
+
+    private void loadRecords() {
+        new Thread(() -> {
+            AppDatabase db = AppDatabase.getInstance(getApplicationContext());
+            List<RecordEntity> recordEntities = db.recordDao().getAllRecords(); // 假設有此方法
+            List<Record> records = new ArrayList<>();
+            for (RecordEntity entity : recordEntities) {
+                records.add(RecordMapper.toModel(entity));
+            }
+            user.setRecords(records);
+            runOnUiThread(() -> {
+                updateViews();
+            });
+        }).start();
     }
 
     private void initViews() {

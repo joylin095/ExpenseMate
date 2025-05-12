@@ -58,7 +58,20 @@ public class Record {
     }
 
     public void setTag(Tag tag) {
-        this.tags.add(tag);
+        for (Tag t : tags) {
+            if (t.getName().equals(tag.getName())) {
+                return;
+            }
+        }
+        tags.add(tag);
+    }
+
+    public void setTags(Set<Tag> tags) {
+        this.tags = tags;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public Set<Tag> getTags() {
@@ -69,7 +82,12 @@ public class Record {
         if (tags.size() == 1) {
             throw new IllegalArgumentException("Cannot delete the last tag");
         }
-        this.tags.remove(tag);
+        for (Tag t : tags) {
+            if (t.getName().equals(tag.getName())) {
+                this.tags.remove(t);
+                return;
+            }
+        }
     }
 
     public String getId() {
