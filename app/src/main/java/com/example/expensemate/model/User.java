@@ -41,6 +41,10 @@ public class User {
         this.recordManager.selectRecord(id);
     }
 
+    public void deleteRecord(String id) {
+        this.recordManager.deleteRecord(id);
+    }
+
     public void selectType(String type) {
         this.recordManager.selectType(type);
     }

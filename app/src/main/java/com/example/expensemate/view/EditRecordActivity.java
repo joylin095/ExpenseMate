@@ -1,5 +1,6 @@
 package com.example.expensemate.view;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.widget.Toast;
 
@@ -12,6 +13,7 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 public class EditRecordActivity extends BaseRecordActivity {
+    private String recordId;
     @Override
     protected int getLayoutResourceId() {
         return R.layout.activity_edit_record;
@@ -22,10 +24,11 @@ public class EditRecordActivity extends BaseRecordActivity {
         Intent intent = getIntent();
         setRecordData(intent);
         findViewById(R.id.btnEdit).setOnClickListener(v -> editRecord());
+        findViewById(R.id.btnDelete).setOnClickListener(v -> deleteRecord());
     }
 
     private void setRecordData(Intent intent) {
-        String recordId = intent.getStringExtra("recordId");
+        recordId = intent.getStringExtra("recordId");
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         user.selectRecord(recordId);
 
@@ -62,5 +65,24 @@ public class EditRecordActivity extends BaseRecordActivity {
         catch (Exception e) {
             Toast.makeText(this, "請檢查資料，每項為必填", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void deleteRecord() {
+        new AlertDialog.Builder(this)
+                .setTitle("確認刪除")
+                .setMessage("確定要刪除這筆紀錄嗎？")
+                .setPositiveButton("確定", (dialog, which) -> {
+                    AppDatabase db = AppDatabase.getInstance(getApplicationContext());
+                    new Thread(() -> {
+                        user.deleteRecord(recordId);
+                        db.recordDao().deleteById(recordId);
+                        runOnUiThread(() -> {
+                            setResult(RESULT_OK);
+                            finish();
+                        });
+                    }).start();
+                })
+                .setNegativeButton("取消", null)
+                .show();
     }
 }

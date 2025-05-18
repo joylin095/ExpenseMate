@@ -33,6 +33,10 @@ public class RecordManager {
         this.currentRecord = new Record(originalRecord);
     }
 
+    public void deleteRecord(String recordId){
+        this.recordList.remove(recordId);
+    }
+
     public void selectType(String type){
         this.currentRecord.setType(type);
     }

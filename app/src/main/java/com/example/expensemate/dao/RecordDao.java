@@ -17,6 +17,10 @@ public interface RecordDao {
     @Update
     void update(RecordEntity record);
 
+    @Query("DELETE FROM record WHERE id = :recordId")
+    void deleteById(String recordId);
+
+
     @Query("SELECT * FROM record")
     List<RecordEntity> getAllRecords();
 }

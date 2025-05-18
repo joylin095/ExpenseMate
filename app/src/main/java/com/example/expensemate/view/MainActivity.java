@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
     private void loadRecords() {
         new Thread(() -> {
             AppDatabase db = AppDatabase.getInstance(getApplicationContext());
-            List<RecordEntity> recordEntities = db.recordDao().getAllRecords(); // 假設有此方法
+            List<RecordEntity> recordEntities = db.recordDao().getAllRecords();
             List<Record> records = new ArrayList<>();
             for (RecordEntity entity : recordEntities) {
                 records.add(RecordMapper.toModel(entity));
