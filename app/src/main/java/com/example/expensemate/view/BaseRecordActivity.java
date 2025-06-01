@@ -8,9 +8,12 @@ import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 
+import com.example.expensemate.Factory.ViewModelFactory;
 import com.example.expensemate.R;
 import com.example.expensemate.model.User;
+import com.example.expensemate.viewModel.RecordsViewModel;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 
@@ -25,6 +28,7 @@ public abstract class BaseRecordActivity extends AppCompatActivity {
     protected RadioGroup radioGroupType;
     protected ChipGroup chipGroupSelectedTags, chipGroupAvailableTags;
     protected User user = User.getInstance();
+    protected RecordsViewModel recordsViewModel;
     private static final int MAX_VISIBLE_TAGS = 5;
     private boolean tagsExpanded = false;
 
@@ -32,6 +36,9 @@ public abstract class BaseRecordActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(getLayoutResourceId());
+
+        ViewModelFactory viewModelFactory = new ViewModelFactory(this);
+        recordsViewModel = new ViewModelProvider(this,viewModelFactory).get(RecordsViewModel.class);
 
         initViews();
         setupSpecificLogic();

@@ -43,10 +43,8 @@ public class AddRecordActivity extends BaseRecordActivity {
         try{
             user.saveRecord();
 
-            RecordEntity entity = RecordMapper.toEntity(user.getRecord());
-            AppDatabase db = AppDatabase.getInstance(getApplicationContext());
             new Thread(() -> {
-                db.recordDao().insert(entity);
+                recordsViewModel.insertRecord(user.getRecord());
                 runOnUiThread(() -> {
                     setResult(RESULT_OK);
                     finish();

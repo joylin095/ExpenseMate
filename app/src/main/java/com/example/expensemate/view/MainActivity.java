@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
 
+import com.example.expensemate.Factory.ViewModelFactory;
 import com.example.expensemate.R;
 import com.example.expensemate.database.AppDatabase;
 import com.example.expensemate.entity.RecordEntity;
@@ -54,9 +55,9 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        AppDatabase db = Room.databaseBuilder(getApplicationContext(), AppDatabase.class, "expensemate-db").build();
 
-        recordsViewModel = new ViewModelProvider(this).get(RecordsViewModel.class);
+        ViewModelFactory viewModelFactory = new ViewModelFactory(this);
+        recordsViewModel = new ViewModelProvider(this,viewModelFactory).get(RecordsViewModel.class);
         recordsViewModel.getRecordList().observe(this, records -> {
             recordsAdapter.setItemList(records);
             recordsAdapter.notifyDataSetChanged();
@@ -82,12 +83,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadRecords() {
         new Thread(() -> {
-            AppDatabase db = AppDatabase.getInstance(getApplicationContext());
-            List<RecordEntity> recordEntities = db.recordDao().getAllRecords();
-            List<Record> records = new ArrayList<>();
-            for (RecordEntity entity : recordEntities) {
-                records.add(RecordMapper.toModel(entity));
-            }
+            List<Record> records = recordsViewModel.getRecordsFromDB();
             user.setRecords(records);
             runOnUiThread(() -> {
                 updateViews();

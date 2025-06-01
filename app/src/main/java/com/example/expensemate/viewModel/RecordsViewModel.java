@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel;
 import com.example.expensemate.model.User;
 import com.example.expensemate.model.DateRecord;
 import com.example.expensemate.model.Record;
+import com.example.expensemate.repository.RecordRepository;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -17,12 +18,33 @@ import java.util.Locale;
 import java.util.Map;
 
 public class RecordsViewModel extends ViewModel {
+    private RecordRepository recordRepository;
     private final MutableLiveData<List<Object>> recordList = new MutableLiveData<>();
     private List<Record> records = new ArrayList<>();
     private User user = User.getInstance();
 
+    public RecordsViewModel(RecordRepository recordRepository) {
+        this.recordRepository = recordRepository;
+    }
+
     public LiveData<List<Object>> getRecordList() {
         return recordList;
+    }
+
+    public List<Record> getRecordsFromDB() {
+        return recordRepository.getAllRecords();
+    }
+
+    public void insertRecord(Record record) {
+        recordRepository.insertRecord(record);
+    }
+
+    public void updateRecord(Record record) {
+        recordRepository.updateRecord(record);
+    }
+
+    public void deleteRecord(String recordId) {
+        recordRepository.deleteRecord(recordId);
     }
 
     public void loadRecords(int year, int month) {

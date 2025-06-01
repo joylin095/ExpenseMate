@@ -52,10 +52,8 @@ public class EditRecordActivity extends BaseRecordActivity {
         try {
             user.editRecord();
 
-            RecordEntity entity = RecordMapper.toEntity(user.getRecord());
-            AppDatabase db = AppDatabase.getInstance(getApplicationContext());
             new Thread(() -> {
-                db.recordDao().update(entity);
+                recordsViewModel.updateRecord(user.getRecord());
                 runOnUiThread(() -> {
                     setResult(RESULT_OK);
                     finish();
@@ -72,10 +70,9 @@ public class EditRecordActivity extends BaseRecordActivity {
                 .setTitle("確認刪除")
                 .setMessage("確定要刪除這筆紀錄嗎？")
                 .setPositiveButton("確定", (dialog, which) -> {
-                    AppDatabase db = AppDatabase.getInstance(getApplicationContext());
                     new Thread(() -> {
                         user.deleteRecord(recordId);
-                        db.recordDao().deleteById(recordId);
+                        recordsViewModel.deleteRecord(recordId);
                         runOnUiThread(() -> {
                             setResult(RESULT_OK);
                             finish();
