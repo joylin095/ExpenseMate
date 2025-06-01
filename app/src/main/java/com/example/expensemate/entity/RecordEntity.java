@@ -3,12 +3,6 @@ package com.example.expensemate.entity;
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
-import androidx.room.TypeConverters;
-
-import com.example.expensemate.model.Tag;
-
-import java.util.Date;
-import java.util.Set;
 
 @Entity(tableName = "record")
 public class RecordEntity {
@@ -18,10 +12,7 @@ public class RecordEntity {
     private String name;
     private String type;
     private float price;
-    @TypeConverters(Converters.class)
-    private Date date;
-    @TypeConverters(Converters.class)
-    private Set<Tag> tags;
+    private long date;
 
     @NonNull
     public String getId() {
@@ -56,19 +47,11 @@ public class RecordEntity {
         this.price = price;
     }
 
-    public Date getDate() {
+    public long getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(long date) {
         this.date = date;
-    }
-
-    public Set<Tag> getTags() {
-        return tags;
-    }
-
-    public void setTags(Set<Tag> tags) {
-        this.tags = tags;
     }
 }

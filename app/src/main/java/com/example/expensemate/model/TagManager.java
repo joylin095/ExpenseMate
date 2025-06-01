@@ -41,4 +41,11 @@ public class TagManager {
         }
         return tagNames;
     }
+
+    public void setTags(List<String> tags) {
+        tagList.clear();
+        for (String tagName : tags) {
+            tagList.add(new Tag(tagName));
+        }
+    }
 }

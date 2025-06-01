@@ -37,6 +37,10 @@ public class User {
         this.recordManager.setRecords(records);
     }
 
+    public void setTags(List<String> tags) {
+        this.tagManager.setTags(tags);
+    }
+
     public void selectRecord(String id) {
         this.recordManager.selectRecord(id);
     }

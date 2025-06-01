@@ -16,16 +16,13 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.room.Room;
 
 import com.example.expensemate.Factory.ViewModelFactory;
 import com.example.expensemate.R;
-import com.example.expensemate.database.AppDatabase;
-import com.example.expensemate.entity.RecordEntity;
-import com.example.expensemate.entity.RecordMapper;
 import com.example.expensemate.model.Record;
 import com.example.expensemate.model.User;
 import com.example.expensemate.viewModel.RecordsViewModel;
+import com.example.expensemate.viewModel.TagsViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.kal.rackmonthpicker.RackMonthPicker;
 
@@ -40,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerViewRecords;
     private RecordsAdapter recordsAdapter;
     private RecordsViewModel recordsViewModel;
+    private TagsViewModel tagsViewModel;
     private TextView textViewMonth, textViewBalance, textViewIncome, textViewExpense;
     private int currentYear, currentMonth;
     private ActivityResultLauncher<Intent> recordLauncher;
@@ -58,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
 
         ViewModelFactory viewModelFactory = new ViewModelFactory(this);
         recordsViewModel = new ViewModelProvider(this,viewModelFactory).get(RecordsViewModel.class);
+        tagsViewModel = new ViewModelProvider(this, viewModelFactory).get(TagsViewModel.class);
         recordsViewModel.getRecordList().observe(this, records -> {
             recordsAdapter.setItemList(records);
             recordsAdapter.notifyDataSetChanged();
@@ -84,7 +83,9 @@ public class MainActivity extends AppCompatActivity {
     private void loadRecords() {
         new Thread(() -> {
             List<Record> records = recordsViewModel.getRecordsFromDB();
+            List<String> tags = tagsViewModel.getTagsFromDB();
             user.setRecords(records);
+            user.setTags(tags);
             runOnUiThread(() -> {
                 updateViews();
             });

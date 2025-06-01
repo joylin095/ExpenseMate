@@ -14,6 +14,7 @@ import com.example.expensemate.Factory.ViewModelFactory;
 import com.example.expensemate.R;
 import com.example.expensemate.model.User;
 import com.example.expensemate.viewModel.RecordsViewModel;
+import com.example.expensemate.viewModel.TagsViewModel;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 
@@ -29,6 +30,7 @@ public abstract class BaseRecordActivity extends AppCompatActivity {
     protected ChipGroup chipGroupSelectedTags, chipGroupAvailableTags;
     protected User user = User.getInstance();
     protected RecordsViewModel recordsViewModel;
+    protected TagsViewModel tagsViewModel;
     private static final int MAX_VISIBLE_TAGS = 5;
     private boolean tagsExpanded = false;
 
@@ -39,6 +41,7 @@ public abstract class BaseRecordActivity extends AppCompatActivity {
 
         ViewModelFactory viewModelFactory = new ViewModelFactory(this);
         recordsViewModel = new ViewModelProvider(this,viewModelFactory).get(RecordsViewModel.class);
+        tagsViewModel = new ViewModelProvider(this, viewModelFactory).get(TagsViewModel.class);
 
         initViews();
         setupSpecificLogic();
@@ -227,6 +230,10 @@ public abstract class BaseRecordActivity extends AppCompatActivity {
         builder.setPositiveButton("新增", (dialog, which) -> {
             String tagName = input.getText().toString().trim();
             if (!tagName.isEmpty()) {
+                new Thread(() -> {
+                    tagsViewModel.insertTag(tagName);
+                }).start();
+
                 user.addTag(tagName);
                 user.selectTag(tagName);
                 populateAvailableTags();
