@@ -45,6 +45,7 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
 
     implementation("com.github.kal72:RackMonthPicker:1.6.1")
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
     implementation("androidx.room:room-runtime:2.5.2")
     implementation("com.google.code.gson:gson:2.10.1")
     annotationProcessor("androidx.room:room-compiler:2.5.2")

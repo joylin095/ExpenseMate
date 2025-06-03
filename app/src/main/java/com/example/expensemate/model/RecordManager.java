@@ -1,10 +1,13 @@
 package com.example.expensemate.model;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class RecordManager {
     private Map<String, Record> recordList;
@@ -105,5 +108,36 @@ public class RecordManager {
             selectedTags.add(tag.getName());
         }
         return selectedTags;
+    }
+
+    public List<Record> getRecordsForMonth(int year, int month) {
+        List<Record> allRecords = new ArrayList<>(this.recordList.values());
+        List<Record> filteredRecords = new ArrayList<>();
+        Calendar calendar = Calendar.getInstance();
+
+        for (Record record : allRecords) {
+            calendar.setTime(record.getDate());
+            int recordYear = calendar.get(Calendar.YEAR);
+            int recordMonth = calendar.get(Calendar.MONTH);
+
+            if (recordYear == year && recordMonth == month) {
+                filteredRecords.add(record);
+            }
+        }
+
+        return filteredRecords;
+    }
+
+    public List<String> getTagsForMonth(int year, int month) {
+        List<Record> recordsForMonth = getRecordsForMonth(year, month);
+        Set<String> uniqueTags = new HashSet<>();
+
+        for (Record record : recordsForMonth) {
+            for (Tag tag : record.getTags()) {
+                uniqueTags.add(tag.getName());
+            }
+        }
+
+        return new ArrayList<>(uniqueTags);
     }
 }

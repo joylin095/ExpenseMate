@@ -48,7 +48,7 @@ public class RecordsViewModel extends ViewModel {
     }
 
     public void loadRecords(int year, int month) {
-        records = getRecordsForMonth(year, month);
+        records = user.getRecordsForMonth(year, month);
         List <Object> groupedRecords = groupRecordsByDate(records);
         recordList.setValue(groupedRecords);
     }
@@ -112,26 +112,5 @@ public class RecordsViewModel extends ViewModel {
         totals.put("Balance", incomeTotal - expenseTotal);
 
         return totals;
-    }
-
-    // This method is used to filter records by month
-    public List<Record> getRecordsForMonth(int year, int month) {
-        Map<String, Record> allRecordsMap = user.getRecordList();
-        List<Record> allRecords = new ArrayList<>(allRecordsMap.values());
-
-        List<Record> filteredRecords = new ArrayList<>();
-        Calendar calendar = Calendar.getInstance();
-
-        for (Record record : allRecords) {
-            calendar.setTime(record.getDate());
-            int recordYear = calendar.get(Calendar.YEAR);
-            int recordMonth = calendar.get(Calendar.MONTH);
-
-            if (recordYear == year && recordMonth == month) {
-                filteredRecords.add(record);
-            }
-        }
-
-        return filteredRecords;
     }
 }

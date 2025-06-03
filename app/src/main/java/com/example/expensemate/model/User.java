@@ -113,4 +113,12 @@ public class User {
     public List<String> getSelectedTags() {
         return this.recordManager.getSelectedTags();
     }
+
+    public List<Record> getRecordsForMonth(int year, int month) {
+        return this.recordManager.getRecordsForMonth(year, month);
+    }
+
+    public List<String> getTagsForMonth(int year, int month) {
+        return this.recordManager.getTagsForMonth(year, month);
+    }
 }
