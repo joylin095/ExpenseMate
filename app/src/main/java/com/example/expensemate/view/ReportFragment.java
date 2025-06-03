@@ -7,9 +7,12 @@ import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.expensemate.R;
 import com.example.expensemate.model.User;
+import com.example.expensemate.viewModel.ReportViewModel;
 import com.example.expensemate.viewModel.SharedDateViewModel;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
@@ -25,10 +28,13 @@ public class ReportFragment extends Fragment {
     private int currentYear, currentMonth;
     private User user = User.getInstance();
     private Set<String> selectedTags = new HashSet<>();
+    private ReportViewModel reportViewModel;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        reportViewModel = new ViewModelProvider(this).get(ReportViewModel.class);
 
         // 取得當前日期
         SharedDateViewModel sharedDateViewModel = new ViewModelProvider(requireActivity()).get(SharedDateViewModel.class);
@@ -41,6 +47,7 @@ public class ReportFragment extends Fragment {
 
     private void updateView() {
         selectedTags.clear();
+        reportViewModel.updateSelectedTags(selectedTags, currentYear, currentMonth);
         populateAvailableTags();
     }
 
@@ -56,7 +63,18 @@ public class ReportFragment extends Fragment {
     private void initViews(View view) {
         chipGroupAvailableTags = view.findViewById(R.id.chipGroupAvailableTags);
 
+        RecyclerView recyclerTagSummary = view.findViewById(R.id.recycler_tag_summary);
+        recyclerTagSummary.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        TagCombinationAdapter tagCombinationAdapter = new TagCombinationAdapter(reportViewModel.getTagCombinationLiveData().getValue());
+        recyclerTagSummary.setAdapter(tagCombinationAdapter);
+
         populateAvailableTags();
+
+        reportViewModel.getTagCombinationLiveData().observe(getViewLifecycleOwner(), tagCombinations -> {
+            tagCombinationAdapter.setTagCombinations(tagCombinations);
+            tagCombinationAdapter.notifyDataSetChanged();
+        });
     }
 
     private void populateAvailableTags() {
@@ -78,6 +96,7 @@ public class ReportFragment extends Fragment {
                 } else {
                     selectedTags.remove(tagName);
                 }
+                reportViewModel.updateSelectedTags(selectedTags, currentYear, currentMonth);
             });
 
             chipGroupAvailableTags.addView(chip);
