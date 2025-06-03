@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">ExpenseMate</string>
     <string name="add_record">新增記錄</string>
+    <string name="title_home">主頁</string>
+    <string name="title_report">統計</string>
 </resources>

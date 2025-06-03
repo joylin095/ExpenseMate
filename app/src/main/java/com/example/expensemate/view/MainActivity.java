@@ -2,147 +2,117 @@ package com.example.expensemate.view;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
-import android.content.Intent;
 import android.os.Bundle;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.expensemate.Factory.ViewModelFactory;
 import com.example.expensemate.R;
-import com.example.expensemate.model.Record;
-import com.example.expensemate.model.User;
-import com.example.expensemate.viewModel.RecordsViewModel;
-import com.example.expensemate.viewModel.TagsViewModel;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.example.expensemate.viewModel.SharedDateViewModel;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.kal.rackmonthpicker.RackMonthPicker;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
-    private RecyclerView recyclerViewRecords;
-    private RecordsAdapter recordsAdapter;
-    private RecordsViewModel recordsViewModel;
-    private TagsViewModel tagsViewModel;
-    private TextView textViewMonth, textViewBalance, textViewIncome, textViewExpense;
+    private TextView textViewMonth;
     private int currentYear, currentMonth;
-    private ActivityResultLauncher<Intent> recordLauncher;
-    private User user = User.getInstance();
+    private SharedDateViewModel sharedDateViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
-        ViewModelFactory viewModelFactory = new ViewModelFactory(this);
-        recordsViewModel = new ViewModelProvider(this,viewModelFactory).get(RecordsViewModel.class);
-        tagsViewModel = new ViewModelProvider(this, viewModelFactory).get(TagsViewModel.class);
-        recordsViewModel.getRecordList().observe(this, records -> {
-            recordsAdapter.setItemList(records);
-            recordsAdapter.notifyDataSetChanged();
-        });
-
-        loadRecords();
         initViews();
-        initCurrentDate();
-        initMonth();
-        updateViews();
 
-        recordLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == RESULT_OK) {
-                        updateViews();
-                    }
-                }
-        );
+        BottomNavigationView navView = findViewById(R.id.bottom_navigation);
+
+        // 預設顯示 HomeFragment
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.nav_host_fragment, new HomeFragment())
+                    .commit();
+        }
+
+        navView.setOnItemSelectedListener(item -> {
+            Fragment selectedFragment = null;
+            if (item.getItemId() == R.id.navigation_home) {
+                selectedFragment = new HomeFragment();
+            }
+            else if(item.getItemId() == R.id.navigation_report){
+                selectedFragment = new ReportFragment();
+            }
+
+            if (selectedFragment != null) {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.nav_host_fragment, selectedFragment)
+                        .commit();
+                return true;
+            }
+            return false;
+        });
+    }
+
+    private void initViews() {
+        sharedDateViewModel = new ViewModelProvider(this).get(SharedDateViewModel.class);
+
+        textViewMonth = findViewById(R.id.textViewMonth);
+        findViewById(R.id.btnPreviousMonth).setOnClickListener(v -> showPreviousMonth());
+        findViewById(R.id.btnNextMonth).setOnClickListener(v -> showNextMonth());
+
+        Calendar calendar = Calendar.getInstance();
+        currentYear = calendar.get(Calendar.YEAR);
+        currentMonth = calendar.get(Calendar.MONTH);
+
+        updateCurrentDate(currentYear, currentMonth);
 
         textViewMonth.setOnClickListener(v -> showDatePickerDialog());
     }
 
-    private void loadRecords() {
-        new Thread(() -> {
-            List<Record> records = recordsViewModel.getRecordsFromDB();
-            List<String> tags = tagsViewModel.getTagsFromDB();
-            user.setRecords(records);
-            user.setTags(tags);
-            runOnUiThread(() -> {
-                updateViews();
-            });
-        }).start();
+    private void showPreviousMonth() {
+        currentMonth--;
+        if (currentMonth < 0) {
+            currentMonth = 11;
+            currentYear--;
+        }
+        updateCurrentDate(currentYear, currentMonth);
     }
 
-    private void initViews() {
-        recyclerViewRecords = findViewById(R.id.recyclerViewRecords);
-        recyclerViewRecords.setLayoutManager(new LinearLayoutManager(this));
-
-        recordsAdapter = new RecordsAdapter(recordsViewModel.getRecordList().getValue());
-        recyclerViewRecords.setAdapter(recordsAdapter);
-
-        textViewMonth = findViewById(R.id.textViewMonth);
-        textViewBalance = findViewById(R.id.textViewBalance);
-        textViewIncome = findViewById(R.id.textViewIncome);
-        textViewExpense = findViewById(R.id.textViewExpense);
-
-        // 新增紀錄跳轉畫面
-        FloatingActionButton btnAddRecord = findViewById(R.id.btnAddRecord);
-        btnAddRecord.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, AddRecordActivity.class);
-            recordLauncher.launch(intent);
-        });
-
-        // 點擊紀錄跳轉畫面
-        recordsAdapter.setOnItemClickListener((recordId) -> {
-            Intent intent = new Intent(MainActivity.this, EditRecordActivity.class);
-            intent.putExtra("recordId", recordId);
-            recordLauncher.launch(intent);
-        });
+    private void showNextMonth() {
+        currentMonth++;
+        if (currentMonth > 11) {
+            currentMonth = 0;
+            currentYear++;
+        }
+        updateCurrentDate(currentYear, currentMonth);
     }
 
-    private void initCurrentDate() {
-        Calendar calendar = Calendar.getInstance();
-        currentYear = calendar.get(Calendar.YEAR);
-        currentMonth = calendar.get(Calendar.MONTH);
-    }
-
-    private void initMonth() {
-        findViewById(R.id.btnPreviousMonth).setOnClickListener(v -> {
-            showPreviousMonth();
-        });
-
-        findViewById(R.id.btnNextMonth).setOnClickListener(v -> {
-            showNextMonth();
-        });
-    }
-
-    private void updateViews() {
-        loadRecordsForCurrentMonth();
-        updateTotal();
-        updateMonthDisplay();
-    }
-
-    private void loadRecordsForCurrentMonth() {
-        recordsViewModel.loadRecords(currentYear, currentMonth);
+    private void showDatePickerDialog() {
+        new RackMonthPicker(this).setLocale(Locale.getDefault())
+                .setNegativeText("取消")
+                .setPositiveText("確認")
+                .setPositiveButton((month, startDate, endDate, year, monthLabel) -> {
+                    currentYear = year;
+                    currentMonth = month - 1;
+                    updateCurrentDate(currentYear, currentMonth);
+                })
+                .setNegativeButton(Dialog::cancel).show();
     }
 
     @SuppressLint("SetTextI18n")
@@ -155,40 +125,8 @@ public class MainActivity extends AppCompatActivity {
         textViewMonth.setText(monthString);
     }
 
-    private void updateTotal() {
-        Map<String, Float> totals = recordsViewModel.calculateTotals();
-        textViewIncome.setText(String.valueOf(totals.get("Income")));
-        textViewExpense.setText(String.valueOf(totals.get("Expense")));
-        textViewBalance.setText(String.valueOf(totals.get("Balance")));
-    }
-
-    private void showPreviousMonth() {
-        currentMonth--;
-        if (currentMonth < 0) {
-            currentMonth = 11;
-            currentYear--;
-        }
-        updateViews();
-    }
-
-    private void showNextMonth() {
-        currentMonth++;
-        if (currentMonth > 11) {
-            currentMonth = 0;
-            currentYear++;
-        }
-        updateViews();
-    }
-
-    private void showDatePickerDialog() {
-        new RackMonthPicker(this).setLocale(Locale.getDefault())
-                .setNegativeText("取消")
-                .setPositiveText("確認")
-                .setPositiveButton((month, startDate, endDate, year, monthLabel) -> {
-                    currentYear = year;
-                    currentMonth = month - 1;
-                    updateViews();
-                })
-                .setNegativeButton(Dialog::cancel).show();
+    private void updateCurrentDate(int currentYear, int currentMonth) {
+        sharedDateViewModel.setCurrentDate(currentYear, currentMonth);
+        updateMonthDisplay();
     }
 }
