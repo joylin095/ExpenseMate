@@ -1,13 +1,17 @@
 package com.example.expensemate.model;
 
+import android.text.TextUtils;
+
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class RecordManager {
     private Map<String, Record> recordList;
@@ -139,5 +143,58 @@ public class RecordManager {
         }
 
         return new ArrayList<>(uniqueTags);
+    }
+
+    public Map<String, Float> calculateComboTagSums(int year, int month, List<String> selectedTags) {
+        Map<String, Float> comboTagSums = new HashMap<>();
+        List<Record> monthRecords = getRecordsForMonth(year, month);
+
+        for (Record r : monthRecords) {
+            List<String> recordTags = r.getTags().stream().map(Tag::getName)
+                    .collect(Collectors.toList());
+            if (recordTags.containsAll(selectedTags)) {
+                List<String> sortedTags = new ArrayList<>(recordTags);
+                Collections.sort(sortedTags);
+                String key = TextUtils.join(",", sortedTags);
+                comboTagSums.put(key, comboTagSums.getOrDefault(key, 0f) + r.getPrice());
+
+                if (selectedTags.size() == 0) {
+                    comboTagSums.put("未分類", comboTagSums.getOrDefault("未分類", 0f) + r.getPrice());
+                    continue;
+                } else {
+                    sortedTags = new ArrayList<>(selectedTags);
+                    Collections.sort(sortedTags);
+                    String selectedKey = TextUtils.join(",", sortedTags);
+
+                    if (!selectedKey.equals(key)) {
+                        comboTagSums.put(selectedKey, comboTagSums.getOrDefault(selectedKey, 0f) + r.getPrice());
+                    }
+                }
+            }
+        }
+
+        return comboTagSums;
+    }
+
+    public ChartData generateChartData(ChartFilter filter) {
+        Map<String, Float> otherTagSums = new HashMap<>();
+        int year = filter.getYear();
+        int month = filter.getMonth();
+        List<String> selectedTags = filter.getSelectedTags();
+
+        List<Record> monthRecords = getRecordsForMonth(year, month);
+        for (Record r : monthRecords) {
+            List<String> recordTags = r.getTags().stream().map(Tag::getName)
+                    .collect(Collectors.toList());
+            if (recordTags.containsAll(selectedTags)) {
+                for (String tag : recordTags) {
+                    if (!selectedTags.contains(tag)) {
+                        otherTagSums.put(tag, otherTagSums.getOrDefault(tag, 0f) + r.getPrice());
+                    }
+                }
+            }
+        }
+
+        return new ChartData(otherTagSums);
     }
 }

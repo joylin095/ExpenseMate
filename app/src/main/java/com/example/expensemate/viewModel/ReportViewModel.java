@@ -1,60 +1,65 @@
 package com.example.expensemate.viewModel;
 
-import android.text.TextUtils;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.example.expensemate.model.Record;
-import com.example.expensemate.model.Tag;
+import com.example.expensemate.model.ChartData;
+import com.example.expensemate.model.ChartFilter;
+import com.example.expensemate.model.ChartType;
 import com.example.expensemate.model.User;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.LinkedHashMap;
 import java.util.stream.Collectors;
 
 public class ReportViewModel extends ViewModel {
     private List<String> selectedTags;
     private MutableLiveData<Map<String, Float>> tagCombinationLiveData = new MutableLiveData<>();
+    private MutableLiveData<Map<String, Float>> pieChartLiveData = new MutableLiveData<>();
     private User user = User.getInstance();
 
     public LiveData<Map<String, Float>> getTagCombinationLiveData() {
         return tagCombinationLiveData;
     }
 
-    public void updateSelectedTags(Set<String> tags, int year, int month) {
-        selectedTags = new ArrayList<>(tags);
-        processData(year, month);
+    public LiveData<Map<String, Float>> getPieChartLiveData() {
+        return pieChartLiveData;
     }
 
-    private void processData(int year, int month) {
-        List<Record> monthRecords = user.getRecordsForMonth(year, month);
-        Map<String, Float> otherTagSums = new HashMap<>();
-        Map<String, Float> comboTagSums = new HashMap<>();
+    public void updateSelectedTags(Set<String> tags, int year, int month) {
+        selectedTags = new ArrayList<>(tags);
+        updateTagCombinationLiveData(year, month);
 
-        for (Record r : monthRecords) {
-            List<String> recordTags = r.getTags().stream().map(Tag::getName)
-                    .collect(Collectors.toList());
-            if (recordTags.containsAll(selectedTags)) {
-                // 所有 tag 組合 key
-                List<String> sortedTags = new ArrayList<>(recordTags);
-                Collections.sort(sortedTags);
-                String key = TextUtils.join(",", sortedTags);
-                comboTagSums.put(key, comboTagSums.getOrDefault(key, 0f) + r.getPrice());
+        ChartFilter filter = new ChartFilter(year, month, selectedTags, ChartType.PIE);
+        updatePieChartLiveData(filter);
+    }
 
-                for (String tag : recordTags) {
-                    if (!selectedTags.contains(tag)) {
-                        otherTagSums.put(tag, otherTagSums.getOrDefault(tag, 0f) + r.getPrice());
-                    }
-                }
-            }
+    private void updateTagCombinationLiveData(int year, int month) {
+        Map<String, Float> comboTagSums = user.getTagCombinationSums(year, month, selectedTags);
+
+        Map<String, Float> sortedComboTagSums = comboTagSums.entrySet().stream()
+                .sorted(Comparator.comparingInt(entry -> entry.getKey().split(",").length))
+                .collect(Collectors.toMap(
+                        entry -> entry.getKey(),
+                        entry -> entry.getValue(),
+                        (e1, e2) -> e1,
+                        LinkedHashMap::new // 保留排序
+                ));
+
+        tagCombinationLiveData.setValue(sortedComboTagSums);
+    }
+
+    private void updatePieChartLiveData(ChartFilter filter) {
+        ChartData chartData = user.getChartData(filter);
+
+        switch (filter.getChartType()) {
+            case PIE:
+                pieChartLiveData.setValue(chartData.getOtherTagSums());
         }
-
-        tagCombinationLiveData.postValue(comboTagSums);
     }
 }

@@ -121,4 +121,12 @@ public class User {
     public List<String> getTagsForMonth(int year, int month) {
         return this.recordManager.getTagsForMonth(year, month);
     }
+
+    public Map<String, Float> getTagCombinationSums(int year, int month, List<String> selectedTags) {
+        return this.recordManager.calculateComboTagSums(year, month, selectedTags);
+    }
+
+    public ChartData getChartData(ChartFilter filter) {
+        return this.recordManager.generateChartData(filter);
+    }
 }
