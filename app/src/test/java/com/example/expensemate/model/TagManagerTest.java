@@ -51,4 +51,13 @@ public class TagManagerTest {
         Tag tag = tagManager.selectTag("不存在");
         assertNull(tag);
     }
+
+    @Test
+    public void setTags_shouldReplaceAllTags() {
+        tagManager.setTags(List.of("新標籤1", "新標籤2"));
+        List<String> tags = tagManager.getTagList();
+        assertTrue(tags.contains("新標籤1"));
+        assertTrue(tags.contains("新標籤2"));
+        assertEquals(2, tags.size());
+    }
 }

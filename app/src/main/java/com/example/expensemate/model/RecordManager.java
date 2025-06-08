@@ -1,7 +1,5 @@
 package com.example.expensemate.model;
 
-import android.text.TextUtils;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -30,6 +28,7 @@ public class RecordManager {
     }
 
     public void setRecords(List<Record> records){
+        this.recordList.clear();
         for (Record record : records) {
             this.recordList.put(record.getId(), record);
         }
@@ -155,17 +154,18 @@ public class RecordManager {
             if (recordTags.containsAll(selectedTags)) {
                 List<String> sortedTags = new ArrayList<>(recordTags);
                 Collections.sort(sortedTags);
-                String key = TextUtils.join(",", sortedTags);
+                String key = String.join(",", sortedTags);
                 comboTagSums.put(key, comboTagSums.getOrDefault(key, 0f) + r.getPrice());
 
                 if (selectedTags.size() == 0) {
-                    comboTagSums.put("未分類", comboTagSums.getOrDefault("未分類", 0f) + r.getPrice());
+                    comboTagSums.put("全部", comboTagSums.getOrDefault("全部", 0f) + r.getPrice());
                     continue;
                 } else {
                     sortedTags = new ArrayList<>(selectedTags);
                     Collections.sort(sortedTags);
-                    String selectedKey = TextUtils.join(",", sortedTags);
+                    String selectedKey = String.join(",", sortedTags);
 
+                    // 也要計算選定標籤的總和，但要避免重複計算
                     if (!selectedKey.equals(key)) {
                         comboTagSums.put(selectedKey, comboTagSums.getOrDefault(selectedKey, 0f) + r.getPrice());
                     }
@@ -188,6 +188,7 @@ public class RecordManager {
                     .collect(Collectors.toList());
             if (recordTags.containsAll(selectedTags)) {
                 for (String tag : recordTags) {
+                    // 如果這個標籤不在選定的標籤中，則將其價格加到其他標籤的總和中
                     if (!selectedTags.contains(tag)) {
                         otherTagSums.put(tag, otherTagSums.getOrDefault(tag, 0f) + r.getPrice());
                     }

@@ -21,7 +21,17 @@ public class ReportViewModel extends ViewModel {
     private List<String> selectedTags;
     private MutableLiveData<Map<String, Float>> tagCombinationLiveData = new MutableLiveData<>();
     private MutableLiveData<Map<String, Float>> pieChartLiveData = new MutableLiveData<>();
-    private User user = User.getInstance();
+    private User user;
+
+    // Constructor for dependency injection
+    public ReportViewModel(User user) {
+        this.user = user;
+    }
+
+    // Default constructor for production use
+    public ReportViewModel() {
+        this(User.getInstance());
+    }
 
     public LiveData<Map<String, Float>> getTagCombinationLiveData() {
         return tagCombinationLiveData;

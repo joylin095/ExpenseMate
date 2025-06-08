@@ -99,4 +99,18 @@ public class RecordTest {
     public void isValid_shouldReturnFalse_whenMissingFields() {
         assertFalse(record.isValid()); // No name, type, price, tag
     }
+
+    @Test
+    public void setTags_shouldUpdateTagsCorrectly() {
+        Set<Tag> newTags = Set.of(new Tag("Food"), new Tag("Drink"));
+        record.setTags(newTags);
+        assertEquals(newTags, record.getTags());
+    }
+
+    @Test
+    public void setId_shouldUpdateIdCorrectly() {
+        String newId = "12345";
+        record.setId(newId);
+        assertEquals(newId, record.getId());
+    }
 }
