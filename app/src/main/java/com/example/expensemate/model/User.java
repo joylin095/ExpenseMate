@@ -5,24 +5,12 @@ import java.util.List;
 import java.util.Map;
 
 public class User {
-    private RecordManager recordManager;
-    private TagManager tagManager;
-    private static User userInstance;
+    private RecordManager recordManager = null;
+    private TagManager tagManager = null;
 
-    private User() {
+    public User() {
         this.recordManager = new RecordManager();
         this.tagManager = new TagManager();
-    }
-
-    public static User getInstance() {
-        if (userInstance == null) {
-            userInstance = new User();
-        }
-        return userInstance;
-    }
-
-    public static void resetInstance() {
-        userInstance = null;
     }
 
     public void createRecord() {

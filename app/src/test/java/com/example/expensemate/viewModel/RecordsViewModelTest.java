@@ -32,19 +32,19 @@ public class RecordsViewModelTest {
     private Observer<List<Object>> mockObserver;
     private RecordsViewModel viewModel;
     private static Calendar calendar;
-    private static User user;
+    private User user;
 
     @BeforeClass
     public static void setUpBeforeClass() {
-        user = User.getInstance();
         calendar = Calendar.getInstance();
         calendar.set(2025, Calendar.JUNE, 8);
     }
 
     @Before
     public void setUp() {
+        user = new User();
         MockitoAnnotations.openMocks(this);
-        viewModel = new RecordsViewModel(mockRecordRepository);
+        viewModel = new RecordsViewModel(mockRecordRepository, user);
         viewModel.getRecordList().observeForever(mockObserver);
     }
 

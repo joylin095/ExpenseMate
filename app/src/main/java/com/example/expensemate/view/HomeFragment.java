@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.expensemate.Factory.ViewModelFactory;
+import com.example.expensemate.MyApplication;
 import com.example.expensemate.R;
 import com.example.expensemate.model.Record;
 import com.example.expensemate.model.User;
@@ -42,7 +43,7 @@ public class HomeFragment extends Fragment {
     private TagsViewModel tagsViewModel;
     private TextView textViewBalance, textViewIncome, textViewExpense;
     private int currentYear, currentMonth;
-    private User user = User.getInstance();
+    private User user = MyApplication.getInstance().getUser();
 
     private ActivityResultLauncher<Intent> recordLauncher;
 

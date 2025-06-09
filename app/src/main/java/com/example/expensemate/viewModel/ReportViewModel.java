@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.expensemate.MyApplication;
 import com.example.expensemate.model.ChartData;
 import com.example.expensemate.model.ChartFilter;
 import com.example.expensemate.model.ChartType;
@@ -30,7 +31,7 @@ public class ReportViewModel extends ViewModel {
 
     // Default constructor for production use
     public ReportViewModel() {
-        this(User.getInstance());
+        this(MyApplication.getInstance().getUser());
     }
 
     public LiveData<Map<String, Float>> getTagCombinationLiveData() {

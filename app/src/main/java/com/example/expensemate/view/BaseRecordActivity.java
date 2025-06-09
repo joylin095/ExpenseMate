@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.expensemate.Factory.ViewModelFactory;
+import com.example.expensemate.MyApplication;
 import com.example.expensemate.R;
 import com.example.expensemate.model.User;
 import com.example.expensemate.viewModel.RecordsViewModel;
@@ -28,7 +29,7 @@ public abstract class BaseRecordActivity extends AppCompatActivity {
     protected EditText editTextName, editTextPrice, editTextDate;
     protected RadioGroup radioGroupType;
     protected ChipGroup chipGroupSelectedTags, chipGroupAvailableTags;
-    protected User user = User.getInstance();
+    protected User user = MyApplication.getInstance().getUser();
     protected RecordsViewModel recordsViewModel;
     protected TagsViewModel tagsViewModel;
     private static final int MAX_VISIBLE_TAGS = 5;

@@ -16,7 +16,7 @@ import com.example.expensemate.entity.TagEntity;
 
 @Database(entities = {RecordEntity.class, TagEntity.class, RecordTagCrossRef.class}, version = 4)
 public abstract class AppDatabase extends RoomDatabase {
-    private static AppDatabase AppDatabaseInstance;
+    private static volatile AppDatabase AppDatabaseInstance;
     public abstract RecordDao recordDao();
     public abstract TagDao tagDao();
 
@@ -29,7 +29,6 @@ public abstract class AppDatabase extends RoomDatabase {
                             .addCallback(new Callback() {
                                 @Override
                                 public void onCreate(@NonNull SupportSQLiteDatabase db) {
-                                    super.onCreate(db);
                                     new Thread(() -> {
                                         TagDao tagDao = getInstance(context).tagDao();
                                         tagDao.insert(new TagEntity("食物"));

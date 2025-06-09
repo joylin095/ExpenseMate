@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.expensemate.MyApplication;
 import com.example.expensemate.R;
 import com.example.expensemate.model.User;
 import com.example.expensemate.viewModel.ReportViewModel;
@@ -36,7 +37,7 @@ public class ReportFragment extends Fragment {
     private static final int MAX_VISIBLE_TAGS = 5;
     private boolean tagsExpanded = false;
     private int currentYear, currentMonth;
-    private User user = User.getInstance();
+    private User user = MyApplication.getInstance().getUser();
     private Set<String> selectedTags = new HashSet<>();
     private ReportViewModel reportViewModel;
 

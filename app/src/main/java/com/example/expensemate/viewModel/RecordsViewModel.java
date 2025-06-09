@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.expensemate.MyApplication;
 import com.example.expensemate.model.User;
 import com.example.expensemate.model.DateRecord;
 import com.example.expensemate.model.Record;
@@ -20,10 +21,11 @@ public class RecordsViewModel extends ViewModel {
     private RecordRepository recordRepository;
     private final MutableLiveData<List<Object>> recordList = new MutableLiveData<>();
     private List<Record> records = new ArrayList<>();
-    private User user = User.getInstance();
+    private User user = null;
 
-    public RecordsViewModel(RecordRepository recordRepository) {
+    public RecordsViewModel(RecordRepository recordRepository, User user) {
         this.recordRepository = recordRepository;
+        this.user = user;
     }
 
     public LiveData<List<Object>> getRecordList() {

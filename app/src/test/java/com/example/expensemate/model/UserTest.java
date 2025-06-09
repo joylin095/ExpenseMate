@@ -11,18 +11,15 @@ import java.util.Map;
 
 import static org.junit.Assert.*;
 
+import com.example.expensemate.MyApplication;
+
 public class UserTest {
 
     private User user;
 
     @Before
     public void setUp() {
-        user = User.getInstance();
-    }
-
-    @After
-    public void tearDown() {
-        User.resetInstance();
+        user = new User();
     }
 
     @Test
