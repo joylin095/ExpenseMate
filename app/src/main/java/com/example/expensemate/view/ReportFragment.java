@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -12,14 +13,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.expensemate.MyApplication;
 import com.example.expensemate.R;
-import com.example.expensemate.model.User;
+import com.example.expensemate.model.Chart;
 import com.example.expensemate.viewModel.ReportViewModel;
 import com.example.expensemate.viewModel.SharedDateViewModel;
-import com.github.mikephil.charting.charts.PieChart;
-import com.github.mikephil.charting.data.PieData;
-import com.github.mikephil.charting.data.PieDataSet;
-import com.github.mikephil.charting.data.PieEntry;
+import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.utils.ColorTemplate;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 
@@ -33,12 +36,12 @@ public class ReportFragment extends Fragment {
     private ChipGroup chipGroupAvailableTags;
     private RecyclerView recyclerTagSummary;
     private TagCombinationAdapter tagCombinationAdapter;
-    private PieChart pieChart;
+    private BarChart barChart;
     private static final int MAX_VISIBLE_TAGS = 5;
     private boolean tagsExpanded = false;
     private int currentYear, currentMonth;
-    private User user = MyApplication.getInstance().getUser();
-    private Set<String> selectedTags = new HashSet<>();
+    private final Chart chart = MyApplication.getInstance().getChart();
+    private final Set<String> selectedTags = new HashSet<>();
     private ReportViewModel reportViewModel;
 
     @Override
@@ -60,7 +63,7 @@ public class ReportFragment extends Fragment {
 
     private void initViews(View view) {
         chipGroupAvailableTags = view.findViewById(R.id.chipGroupAvailableTags);
-        pieChart = view.findViewById(R.id.pie_chart);
+        barChart = view.findViewById(R.id.bar_chart);
 
         recyclerTagSummary = view.findViewById(R.id.recycler_tag_summary);
         recyclerTagSummary.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -68,7 +71,32 @@ public class ReportFragment extends Fragment {
         tagCombinationAdapter = new TagCombinationAdapter(reportViewModel.getTagCombinationLiveData().getValue());
         recyclerTagSummary.setAdapter(tagCombinationAdapter);
 
+        setupBarChart();
         populateAvailableTags();
+    }
+
+    private void setupBarChart() {
+        if (barChart == null) return; // 安全檢查
+
+        // 設置長條圖的基本配置
+        barChart.getDescription().setEnabled(false);
+        barChart.setTouchEnabled(true);
+        barChart.setDragEnabled(true);
+        barChart.setScaleEnabled(true);
+        barChart.setPinchZoom(false);
+
+        // 設置 X 軸
+        XAxis xAxis = barChart.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setDrawGridLines(false);
+        xAxis.setGranularity(1f);
+
+        // 設置 Y 軸
+        barChart.getAxisLeft().setDrawGridLines(true);
+        barChart.getAxisRight().setEnabled(false);
+
+        // 設置圖例
+        barChart.getLegend().setEnabled(true);
     }
 
     private void setObserve() {
@@ -87,9 +115,7 @@ public class ReportFragment extends Fragment {
         });
 
         // 更新餅圖資料
-        reportViewModel.getPieChartLiveData().observe(getViewLifecycleOwner(), pieChartData -> {
-            updatePieChart(pieChartData);
-        });
+        reportViewModel.getBarChartLiveData().observe(getViewLifecycleOwner(), this::updateBarChart);
     }
 
     private void updateView() {
@@ -98,41 +124,51 @@ public class ReportFragment extends Fragment {
         populateAvailableTags();
     }
 
-    private void updatePieChart(Map<String, Float> data) {
-        List<PieEntry> entries = new ArrayList<>();
-        for (Map.Entry<String, Float> entry : data.entrySet()) {
-            entries.add(new PieEntry(entry.getValue(), entry.getKey()));
+    private void updateBarChart(Map<String, Float> data) {
+        if (barChart == null || data == null || data.isEmpty()) {
+            return; // 安全檢查
         }
 
-        PieDataSet dataSet = new PieDataSet(entries, "Other Tags");
+        List<BarEntry> entries = new ArrayList<>();
+        List<String> labels = new ArrayList<>();
+
+        int index = 0;
+        for (Map.Entry<String, Float> entry : data.entrySet()) {
+            entries.add(new BarEntry(index, entry.getValue()));
+            labels.add(entry.getKey());
+            index++;
+        }
+
+        if (entries.isEmpty()) {
+            barChart.clear();
+            return;
+        }
+
+        BarDataSet dataSet = new BarDataSet(entries, "支出金額");
         dataSet.setColors(ColorTemplate.MATERIAL_COLORS);
-        PieData pieChartData = new PieData(dataSet);
+        dataSet.setValueTextSize(12f);
 
-        pieChart.setData(pieChartData);
-        pieChart.invalidate(); // refresh
+        BarData barData = new BarData(dataSet);
+        barData.setBarWidth(0.8f); // 設置長條寬度
+
+        // 設置 X 軸標籤
+        XAxis xAxis = barChart.getXAxis();
+        xAxis.setValueFormatter(new IndexAxisValueFormatter(labels));
+        xAxis.setLabelCount(labels.size());
+
+        barChart.setData(barData);
+        barChart.setFitBars(true); // 讓長條圖適應寬度
+        barChart.animateY(1000); // 添加動畫效果
+        barChart.invalidate(); // 刷新圖表
     }
-
     private void populateAvailableTags() {
         chipGroupAvailableTags.removeAllViews();
 
-        List<String> tags = user.getTagsForMonth(currentYear, currentMonth); // 使用當前月份的標籤
+        List<String> tags = chart.getTagsForMonth(currentYear, currentMonth); // 使用當前月份的標籤
         int displayCount = tagsExpanded ? tags.size() : Math.min(tags.size(), MAX_VISIBLE_TAGS);
 
         for (int i = 0; i < displayCount; i++) {
-            String tagName = tags.get(i);
-            Chip chip = new Chip(getContext());
-            chip.setText(tagName);
-            chip.setCheckable(true);
-            chip.setChecked(selectedTags.contains(tagName));
-
-            chip.setOnClickListener(v -> {
-                if (chip.isChecked()) {
-                    selectedTags.add(tagName);
-                } else {
-                    selectedTags.remove(tagName);
-                }
-                reportViewModel.updateSelectedTags(selectedTags, currentYear, currentMonth);
-            });
+            Chip chip = getChip(tags, i);
 
             chipGroupAvailableTags.addView(chip);
         }
@@ -140,6 +176,25 @@ public class ReportFragment extends Fragment {
         if (tags.size() > MAX_VISIBLE_TAGS) {
             setToggleChip();
         }
+    }
+
+    @NonNull
+    private Chip getChip(List<String> tags, int i) {
+        String tagName = tags.get(i);
+        Chip chip = new Chip(getContext());
+        chip.setText(tagName);
+        chip.setCheckable(true);
+        chip.setChecked(selectedTags.contains(tagName));
+
+        chip.setOnClickListener(v -> {
+            if (chip.isChecked()) {
+                selectedTags.add(tagName);
+            } else {
+                selectedTags.remove(tagName);
+            }
+            reportViewModel.updateSelectedTags(selectedTags, currentYear, currentMonth);
+        });
+        return chip;
     }
 
     private void setToggleChip() {

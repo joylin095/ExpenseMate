@@ -113,7 +113,7 @@ public class RecordManager {
         return selectedTags;
     }
 
-    public List<Record> getRecordsForMonth(int year, int month) {
+    public List<Record> getRecordsForMonth(int targetYear, int targetMonth) {
         List<Record> allRecords = new ArrayList<>(this.recordList.values());
         List<Record> filteredRecords = new ArrayList<>();
         Calendar calendar = Calendar.getInstance();
@@ -123,7 +123,7 @@ public class RecordManager {
             int recordYear = calendar.get(Calendar.YEAR);
             int recordMonth = calendar.get(Calendar.MONTH);
 
-            if (recordYear == year && recordMonth == month) {
+            if (recordYear == targetYear && recordMonth == targetMonth) {
                 filteredRecords.add(record);
             }
         }
@@ -144,6 +144,19 @@ public class RecordManager {
         return new ArrayList<>(uniqueTags);
     }
 
+    public List<Record> getRecordByTags(int year, int month, List<String> tags) {
+        List<Record> recordsForMonth = getRecordsForMonth(year, month);
+        List<Record> selectedRecords = new ArrayList<>();
+        for (Record r :recordsForMonth) {
+            List<String> recordTags = r.getTags().stream().map(Tag::getName)
+                    .collect(Collectors.toList());
+            if (new HashSet<>(recordTags).containsAll(tags)) {
+                selectedRecords.add(r);
+            }
+        }
+        return selectedRecords;
+    }
+
     public Map<String, Float> calculateComboTagSums(int year, int month, List<String> selectedTags) {
         Map<String, Float> comboTagSums = new HashMap<>();
         List<Record> monthRecords = getRecordsForMonth(year, month);
@@ -151,51 +164,20 @@ public class RecordManager {
         for (Record r : monthRecords) {
             List<String> recordTags = r.getTags().stream().map(Tag::getName)
                     .collect(Collectors.toList());
-            if (recordTags.containsAll(selectedTags)) {
-                List<String> sortedTags = new ArrayList<>(recordTags);
-                Collections.sort(sortedTags);
-                String key = String.join(",", sortedTags);
-                comboTagSums.put(key, comboTagSums.getOrDefault(key, 0f) + r.getPrice());
 
-                if (selectedTags.size() == 0) {
-                    comboTagSums.put("全部", comboTagSums.getOrDefault("全部", 0f) + r.getPrice());
-                    continue;
-                } else {
-                    sortedTags = new ArrayList<>(selectedTags);
-                    Collections.sort(sortedTags);
-                    String selectedKey = String.join(",", sortedTags);
-
-                    // 也要計算選定標籤的總和，但要避免重複計算
-                    if (!selectedKey.equals(key)) {
-                        comboTagSums.put(selectedKey, comboTagSums.getOrDefault(selectedKey, 0f) + r.getPrice());
+            // 如果記錄包含所有選定的標籤
+            if (new HashSet<>(recordTags).containsAll(selectedTags)) {
+                // 計算每個標籤的總計（除了選定的標籤）
+                for (String tag : recordTags) {
+                    if (!selectedTags.contains(tag)) {
+                        Float currentSum = comboTagSums.get(tag);
+                        float newSum = (currentSum != null ? currentSum : 0f) + r.getPrice();
+                        comboTagSums.put(tag, newSum);
                     }
                 }
             }
         }
 
         return comboTagSums;
-    }
-
-    public ChartData generateChartData(ChartFilter filter) {
-        Map<String, Float> otherTagSums = new HashMap<>();
-        int year = filter.getYear();
-        int month = filter.getMonth();
-        List<String> selectedTags = filter.getSelectedTags();
-
-        List<Record> monthRecords = getRecordsForMonth(year, month);
-        for (Record r : monthRecords) {
-            List<String> recordTags = r.getTags().stream().map(Tag::getName)
-                    .collect(Collectors.toList());
-            if (recordTags.containsAll(selectedTags)) {
-                for (String tag : recordTags) {
-                    // 如果這個標籤不在選定的標籤中，則將其價格加到其他標籤的總和中
-                    if (!selectedTags.contains(tag)) {
-                        otherTagSums.put(tag, otherTagSums.getOrDefault(tag, 0f) + r.getPrice());
-                    }
-                }
-            }
-        }
-
-        return new ChartData(otherTagSums);
     }
 }

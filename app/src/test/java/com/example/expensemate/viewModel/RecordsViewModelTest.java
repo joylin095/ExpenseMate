@@ -4,6 +4,8 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.Observer;
 
 import com.example.expensemate.model.Record;
+import com.example.expensemate.model.RecordManager;
+import com.example.expensemate.model.TagManager;
 import com.example.expensemate.model.User;
 import com.example.expensemate.repository.RecordRepository;
 
@@ -42,7 +44,7 @@ public class RecordsViewModelTest {
 
     @Before
     public void setUp() {
-        user = new User();
+        user = new User(new RecordManager(), new TagManager());
         MockitoAnnotations.openMocks(this);
         viewModel = new RecordsViewModel(mockRecordRepository, user);
         viewModel.getRecordList().observeForever(mockObserver);

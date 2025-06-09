@@ -1,5 +1,6 @@
 package com.example.expensemate.view;
 
+import android.annotation.SuppressLint;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -53,6 +54,7 @@ public class TagCombinationAdapter extends RecyclerView.Adapter<TagCombinationAd
             tagPrice = itemView.findViewById(R.id.amountText);
         }
 
+        @SuppressLint("DefaultLocale")
         public void bind(Map.Entry<String, Float> entry) {
             tagCombo.setText(entry.getKey());
             tagPrice.setText(String.format("%.2f", entry.getValue()));

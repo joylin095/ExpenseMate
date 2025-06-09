@@ -5,8 +5,7 @@ import androidx.lifecycle.Observer;
 
 import com.example.expensemate.model.ChartData;
 import com.example.expensemate.model.ChartFilter;
-import com.example.expensemate.model.ChartType;
-import com.example.expensemate.model.User;
+import com.example.expensemate.model.Chart;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -28,7 +27,7 @@ public class ReportViewModelTest {
     public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
     @Mock
-    private User mockUser;
+    private Chart mockChart;
 
     @Mock
     private Observer<Map<String, Float>> tagCombinationObserver;
@@ -43,9 +42,9 @@ public class ReportViewModelTest {
         MockitoAnnotations.openMocks(this);
 
         // Inject mockUser directly into the ViewModel
-        viewModel = new ReportViewModel(mockUser);
+        viewModel = new ReportViewModel(mockChart);
         viewModel.getTagCombinationLiveData().observeForever(tagCombinationObserver);
-        viewModel.getPieChartLiveData().observeForever(pieChartObserver);
+        viewModel.getBarChartLiveData().observeForever(pieChartObserver);
     }
 
     @Test
@@ -65,9 +64,9 @@ public class ReportViewModelTest {
         mockOtherTagSums.put("Food", 100f);
         ChartData mockChartData = new ChartData(mockOtherTagSums);
 
-        when(mockUser.getTagCombinationSums(year, month, new ArrayList<>(selectedTags)))
+        when(mockChart.getTagCombinationSums(year, month, new ArrayList<>(selectedTags)))
                 .thenReturn(mockTagCombinationSums);
-        when(mockUser.getChartData(any(ChartFilter.class))).thenReturn(mockChartData);
+        when(mockChart.generateChartData(any(ChartFilter.class))).thenReturn(mockChartData);
 
         // Act
         viewModel.updateSelectedTags(selectedTags, year, month);

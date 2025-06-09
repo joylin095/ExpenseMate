@@ -8,9 +8,9 @@ public class User {
     private RecordManager recordManager = null;
     private TagManager tagManager = null;
 
-    public User() {
-        this.recordManager = new RecordManager();
-        this.tagManager = new TagManager();
+    public User(RecordManager recordManager, TagManager tagManager) {
+        this.recordManager = recordManager;
+        this.tagManager = tagManager;
     }
 
     public void createRecord() {
@@ -106,15 +106,15 @@ public class User {
         return this.recordManager.getRecordsForMonth(year, month);
     }
 
-    public List<String> getTagsForMonth(int year, int month) {
-        return this.recordManager.getTagsForMonth(year, month);
-    }
+//    public List<String> getTagsForMonth(int year, int month) {
+//        return this.recordManager.getTagsForMonth(year, month);
+//    }
 
-    public Map<String, Float> getTagCombinationSums(int year, int month, List<String> selectedTags) {
-        return this.recordManager.calculateComboTagSums(year, month, selectedTags);
-    }
+//    public Map<String, Float> getTagCombinationSums(int year, int month, List<String> selectedTags) {
+//        return this.recordManager.calculateComboTagSums(year, month, selectedTags);
+//    }
 
-    public ChartData getChartData(ChartFilter filter) {
-        return this.recordManager.generateChartData(filter);
-    }
+//    public ChartData getChartData(ChartFilter filter) {
+//        return this.recordManager.generateChartData(filter);
+//    }
 }

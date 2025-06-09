@@ -43,7 +43,7 @@ public class HomeFragment extends Fragment {
     private TagsViewModel tagsViewModel;
     private TextView textViewBalance, textViewIncome, textViewExpense;
     private int currentYear, currentMonth;
-    private User user = MyApplication.getInstance().getUser();
+    private final User user = MyApplication.getInstance().getUser();
 
     private ActivityResultLauncher<Intent> recordLauncher;
 
@@ -86,6 +86,7 @@ public class HomeFragment extends Fragment {
         return view;
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private void setupObservers() {
         recordsViewModel.getRecordList().observe(getViewLifecycleOwner(), records -> {
             recordsAdapter.setItemList(records);

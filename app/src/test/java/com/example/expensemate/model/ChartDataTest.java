@@ -15,7 +15,7 @@ public class ChartDataTest {
 
     @Test
     public void testGetOtherTagSums() {
-        Map<String, Float> otherTagSums = chartData.getOtherTagSums();
+        Map<String, Float> otherTagSums = chartData.getTagSums();
         assert otherTagSums.size() == 2;
         assert otherTagSums.get("Tag1") == 100.0f;
         assert otherTagSums.get("Tag2") == 200.0f;

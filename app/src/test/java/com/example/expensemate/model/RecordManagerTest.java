@@ -285,26 +285,4 @@ public class RecordManagerTest {
         assertTrue(sums.containsKey("食物"));
         assertEquals(350f, sums.get("食物"), 0.001f);
     }
-
-    @Test
-    public void generateChartData_shouldReturnCorrectData() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(2025, Calendar.JUNE, 8);
-        Date date = calendar.getTime();
-
-        manager.createRecord();
-        manager.enterName("測試");
-        manager.selectType("支出");
-        manager.enterPrice(100f);
-        manager.selectDate(date);
-        manager.setTag(new Tag("測試標籤"));
-        manager.saveRecord();
-
-        ChartFilter filter = new ChartFilter(2025, Calendar.JUNE, List.of("測試標籤"), ChartType.PIE);
-        ChartData chartData = manager.generateChartData(filter);
-
-        assertNotNull(chartData);
-        assertEquals(0, chartData.getOtherTagSums().size());
-        assertFalse(chartData.getOtherTagSums().containsKey("測試標籤"));
-    }
 }
