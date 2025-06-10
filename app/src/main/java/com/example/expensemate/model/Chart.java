@@ -11,17 +11,15 @@ public class Chart {
         this.recordManager = recordManager;
     }
 
-    public List<String> getTagsForMonth(int year, int month) {
+    public List<String> getTagsByMonth(int year, int month) {
         return this.recordManager.getTagsForMonth(year, month);
     }
 
     public ChartData generateChartData(ChartFilter filter) {
         Map<String, Float> tagSums = new HashMap<>();
-        int year = filter.getYear();
-        int month = filter.getMonth();
         List<String> selectedTags = filter.getSelectedTags();
 
-        List<Record> selectedRecords = recordManager.getRecordByTags(year, month, selectedTags);
+        List<Record> selectedRecords = recordManager.getRecordByFilter(filter);
         for (Record r : selectedRecords) {
             if (r.getType().equals("Income")){
                 continue;

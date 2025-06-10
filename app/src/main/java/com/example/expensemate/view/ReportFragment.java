@@ -164,7 +164,7 @@ public class ReportFragment extends Fragment {
     private void populateAvailableTags() {
         chipGroupAvailableTags.removeAllViews();
 
-        List<String> tags = chart.getTagsForMonth(currentYear, currentMonth); // 使用當前月份的標籤
+        List<String> tags = chart.getTagsByMonth(currentYear, currentMonth); // 使用當前月份的標籤
         int displayCount = tagsExpanded ? tags.size() : Math.min(tags.size(), MAX_VISIBLE_TAGS);
 
         for (int i = 0; i < displayCount; i++) {

@@ -40,6 +40,7 @@ dependencies {
     implementation(libs.protolite.well.known.types)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
+    implementation(libs.play.services.location)
     testImplementation(libs.junit)
     testImplementation("org.mockito:mockito-core:5.5.0")
     testImplementation("androidx.arch.core:core-testing:2.2.0")

@@ -1,12 +1,17 @@
 package com.example.expensemate.view;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Build;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -14,12 +19,15 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.expensemate.R;
+import com.example.expensemate.service.LocationForegroundService;
 import com.example.expensemate.viewModel.SharedDateViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.kal.rackmonthpicker.RackMonthPicker;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
@@ -40,6 +48,8 @@ public class MainActivity extends AppCompatActivity {
         });
 
         initViews();
+        requestPermissionsIfNeeded();
+        activateForegroundService();
 
         BottomNavigationView navView = findViewById(R.id.bottom_navigation);
 
@@ -128,5 +138,46 @@ public class MainActivity extends AppCompatActivity {
     private void updateCurrentDate(int currentYear, int currentMonth) {
         sharedDateViewModel.setCurrentDate(currentYear, currentMonth);
         updateMonthDisplay();
+    }
+
+    private void requestPermissionsIfNeeded() {
+        List<String> permissionsNeeded = new ArrayList<>();
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            permissionsNeeded.add(Manifest.permission.ACCESS_FINE_LOCATION);
+        }
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            permissionsNeeded.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+        }
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            permissionsNeeded.add(Manifest.permission.POST_NOTIFICATIONS);
+        }
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.FOREGROUND_SERVICE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            permissionsNeeded.add(Manifest.permission.FOREGROUND_SERVICE_LOCATION);
+        }
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.FOREGROUND_SERVICE) != PackageManager.PERMISSION_GRANTED) {
+            permissionsNeeded.add(Manifest.permission.FOREGROUND_SERVICE);
+        }
+
+        if (!permissionsNeeded.isEmpty()) {
+            ActivityCompat.requestPermissions(
+                    this,
+                    permissionsNeeded.toArray(new String[0]),
+                    101
+            );
+        }
+    }
+
+    private void activateForegroundService() {
+        Intent intent = new Intent(this, LocationForegroundService.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            startForegroundService(intent);
+        } else {
+            startService(intent);
+        }
     }
 }
