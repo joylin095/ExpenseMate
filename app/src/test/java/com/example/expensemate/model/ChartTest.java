@@ -27,6 +27,7 @@ public class ChartTest {
         recordManager.enterPrice(150f);
         recordManager.selectDate(date);
         recordManager.setTag(new Tag("食物"));
+        recordManager.setTag(new Tag("需要"));
         recordManager.saveRecord();
 
         recordManager.createRecord();
@@ -35,6 +36,16 @@ public class ChartTest {
         recordManager.enterPrice(200f);
         recordManager.selectDate(date);
         recordManager.setTag(new Tag("食物"));
+        recordManager.setTag(new Tag("需要"));
+        recordManager.saveRecord();
+
+        recordManager.createRecord();
+        recordManager.enterName("晚餐");
+        recordManager.selectType("支出");
+        recordManager.enterPrice(200f);
+        recordManager.selectDate(date);
+        recordManager.setTag(new Tag("食物"));
+        recordManager.setTag(new Tag("需要"));
         recordManager.saveRecord();
 
         chart = new Chart(recordManager);

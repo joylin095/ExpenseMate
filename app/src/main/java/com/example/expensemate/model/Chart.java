@@ -15,10 +15,6 @@ public class Chart {
         return this.recordManager.getTagsForMonth(year, month);
     }
 
-    public Map<String, Float> getTagCombinationSums(int year, int month, List<String> selectedTags) {
-        return this.recordManager.calculateComboTagSums(year, month, selectedTags);
-    }
-
     public ChartData generateChartData(ChartFilter filter) {
         Map<String, Float> tagSums = new HashMap<>();
         int year = filter.getYear();
@@ -27,12 +23,17 @@ public class Chart {
 
         List<Record> selectedRecords = recordManager.getRecordByTags(year, month, selectedTags);
         for (Record r : selectedRecords) {
+            if (r.getType().equals("Income")){
+                continue;
+            }
             List<String> recordTags = r.getTags().stream().map(Tag::getName)
                     .collect(Collectors.toList());
             for (String tag : recordTags) {
-                Float value = tagSums.getOrDefault(tag, 0f);
-                float price = (value != null) ? value : 0f;
-                tagSums.put(tag, price + r.getPrice());
+                if (!selectedTags.contains(tag)) {
+                    Float value = tagSums.getOrDefault(tag, 0f);
+                    float price = (value != null) ? value : 0f;
+                    tagSums.put(tag, price + r.getPrice());
+                }
             }
         }
 

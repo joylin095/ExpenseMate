@@ -6,6 +6,7 @@ import androidx.lifecycle.Observer;
 import com.example.expensemate.model.ChartData;
 import com.example.expensemate.model.ChartFilter;
 import com.example.expensemate.model.Chart;
+import com.example.expensemate.model.ChartType;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -64,14 +65,13 @@ public class ReportViewModelTest {
         mockOtherTagSums.put("Food", 100f);
         ChartData mockChartData = new ChartData(mockOtherTagSums);
 
-        when(mockChart.getTagCombinationSums(year, month, new ArrayList<>(selectedTags)))
-                .thenReturn(mockTagCombinationSums);
         when(mockChart.generateChartData(any(ChartFilter.class))).thenReturn(mockChartData);
 
         // Act
         viewModel.updateSelectedTags(selectedTags, year, month);
 
         // Assert
-        verify(tagCombinationObserver).onChanged(mockTagCombinationSums);
+        verify(pieChartObserver).onChanged(mockOtherTagSums);
+        verify(tagCombinationObserver).onChanged(mockOtherTagSums);
     }
 }

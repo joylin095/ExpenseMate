@@ -162,6 +162,9 @@ public class RecordManager {
         List<Record> monthRecords = getRecordsForMonth(year, month);
 
         for (Record r : monthRecords) {
+            if (r.getType().equals("Income")) {
+                continue;
+            }
             List<String> recordTags = r.getTags().stream().map(Tag::getName)
                     .collect(Collectors.toList());
 

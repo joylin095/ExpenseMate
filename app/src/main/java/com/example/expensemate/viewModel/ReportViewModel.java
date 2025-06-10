@@ -51,13 +51,13 @@ public class ReportViewModel extends ViewModel {
     }
 
     private void updateTagCombinationLiveData(int year, int month) {
-        Map<String, Float> comboTagSums = chart.getTagCombinationSums(year, month, selectedTags);
+        ChartFilter filter = new ChartFilter(year, month, selectedTags, ChartType.BAR);
+        ChartData data = chart.generateChartData(filter);
 
-        Map<String, Float> sortedComboTagSums = comboTagSums.entrySet().stream()
-                .sorted(Comparator.comparingInt(entry -> entry.getKey().split(",").length))
+        Map<String, Float> sortedComboTagSums = data.getTagSums().entrySet().stream()
                 .collect(Collectors.toMap(
-                        entry -> entry.getKey(),
-                        entry -> entry.getValue(),
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
                         (e1, e2) -> e1,
                         LinkedHashMap::new // 保留排序
                 ));

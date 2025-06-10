@@ -80,9 +80,9 @@ public class ReportFragment extends Fragment {
 
         // 設置長條圖的基本配置
         barChart.getDescription().setEnabled(false);
-        barChart.setTouchEnabled(true);
-        barChart.setDragEnabled(true);
-        barChart.setScaleEnabled(true);
+        barChart.setTouchEnabled(false);
+        barChart.setDragEnabled(false);
+        barChart.setScaleEnabled(false);
         barChart.setPinchZoom(false);
 
         // 設置 X 軸
