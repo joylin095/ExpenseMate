@@ -270,6 +270,7 @@ public class RecordManagerTest {
         manager.enterPrice(150f);
         manager.selectDate(date);
         manager.setTag(new Tag("食物"));
+        manager.setTag(new Tag("社交"));
         manager.saveRecord();
 
         manager.createRecord();
@@ -282,7 +283,7 @@ public class RecordManagerTest {
 
         Map<String, Float> sums = manager.calculateComboTagSums(2025, Calendar.JUNE, tags);
         assertEquals(1, sums.size());
-        assertTrue(sums.containsKey("食物"));
-        assertEquals(350f, sums.get("食物"), 0.001f);
+        assertTrue(sums.containsKey("社交"));
+        assertEquals(150f, sums.get("社交"), 0.001f);
     }
 }
